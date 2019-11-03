@@ -24,4 +24,14 @@ def template_1():
 
     text = f'{podlezh} {skaz_word} {dopolnenie} {obstoyatelstvo}'
     return text
+
+
+class Template:
+    def __init__(self):
+        
+        self.text = ''
+
+
+class Template_1(Template):
+    pass
     
