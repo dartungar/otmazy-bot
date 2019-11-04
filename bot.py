@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     df = pd.read_excel('otmazy_words.xlsx', index_col=0, sheet_name=None)
 
-    print(template_1())
+    print(template_1(words=df, morph=morph))
     exit()
 
 

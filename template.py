@@ -8,21 +8,21 @@
 import pymorphy2
 
 from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
+import words_new
 
-#http://www.mylanguage.ru/materials/130/3181
+# http://www.mylanguage.ru/materials/130/3181
 
-#TODO: переделать в класс
-def template_1():
+
+# TODO: переделать в класс
+def template_1(words, morph):
     # подлежащее + сказуемое в буд. вр. + дополнение + предлог + обстоятельство
-    podlezh = get_podlezh()
-    skaz = get_skaz(podlezh, has_object=1, to_be=0)
-    skaz_word = skaz[0]
-    skaz_info = skaz[1]
-    dopolnenie = get_noun_dop(skaz_info=skaz_info)
-    obstoyatelstvo = get_noun_obst(has_object=1)
+    beginning = words_new.Beginning(words=words)
+    podlezh = words_new.Subject()
+    skaz = words_new.Predicate(words=words, morph=morph, subject=podlezh, has_object=1)
+    dopolnenie = words_new.Object(words, morph, predicate=skaz)
+    obstoyatelstvo = words_new.Adverbial(words, morph, predicate=skaz, object=dopolnenie)
     
-
-    text = f'{podlezh} {skaz_word} {dopolnenie} {obstoyatelstvo}'
+    text = f'{beginning.word} {podlezh.word} {skaz.word} {dopolnenie.word} {obstoyatelstvo.word}'
     return text
 
 

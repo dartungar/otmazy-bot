@@ -26,7 +26,7 @@ def get_podlezh():
 def get_must(word_parsed):
     p = word_parsed
     if 'datv' in p.tag:
-        return random.choice(['нужно', 'придется', 'давно пора']) + ' '
+        return random.choice(['нужно', 'надо', 'придется', 'давно пора']) + ' '
     return ''
 
 
@@ -65,13 +65,10 @@ def get_skaz(podlezh, has_object=0, type=None, to_be=0):
         s = s.word
 
     must = get_must(p)
-    
-
 
     return (f'{must}{s}', skaz_info)
 
 
-# FIXME: откуда-то nan берется
 def get_predlog(noun_data):
     if pd.isna(noun_data.iloc[0, 4]) is False:
         return noun_data.iloc[0, 4]
@@ -109,19 +106,24 @@ def get_noun_dop(skaz_info=None):
     noun = noun_data.iloc[0, 0]
     n = morph.parse(noun)[0]
     n = n.inflect({'accs'}).word
-    return n
+    return (noun_data, n)
 
 
 
 
-def get_noun_obst(has_object=0):
-    # подходят люди, вещи, места и ивенты. TODO: предлоги типа "повезу тёщу ЗА женой"
-    # TODO: в БД у существительных колонка с указанием падежа, если они в роле обстоятельства - "куда", "к кому"
-    # НО! вроде можно сделать просто на основе одушевленности! если одуш то К КОМУ, если неодуш то КУДА
+def get_noun_obst(has_object=0, noun_dop=None):
+    # подходят люди, вещи, места и ивенты. TODO: предлоги типа "повезу тёщу ЗА женой", "поеду К жене"
+    #print(noun_dop)
+    #print(pd.isna(noun_dop))
     if has_object:
-        noun_data = df['noun'][df['noun'].type.isin(['place', 'event'])].sample()
+        if noun_dop.iloc[0, 3] == 'person':
+            noun_data = df['noun'][df['noun'].type.isin(['place', 'event'])].sample()
+        if noun_dop.iloc[0, 3] == 'thing':
+            noun_data = df['noun'][df['noun'].type.isin(['place'])].sample()
     else:
         noun_data = df['noun'][df['noun'].type.isin(['place', 'event', 'project'])].sample()
+
+    #print(noun_data)
 
     noun = noun_data.iloc[0, 0]
     n = morph.parse(noun)[0]
@@ -138,7 +140,7 @@ def get_noun_obst(has_object=0):
         n = n.inflect({cases[noun_data.iloc[0, 3]]})       
     
     predlog = get_predlog(noun_data)
-    print(f'{predlog}')
+    #print(f'{predlog}')
     n = n.word
     n = f'{predlog} {n}'
     return n
