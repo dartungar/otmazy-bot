@@ -5,31 +5,51 @@ import random
 
 # существительное
 class Subject():
-    def __init__(self):
-        # TODO: более продвинутые существительные, епт! + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
-        self.word = random.choice(['я', 'мне']) 
+    def __init__(self, words, subject_is_myself=1):
+        # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
+        # + зависимость от контекста
+        # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
+        # возможно это уже совсем другой шаблон
+        self.is_myself = subject_is_myself
+        if subject_is_myself:
+            self.word = random.choice(['я', 'мне']) 
+        else:
+            self.word = random.choice(['жена', 'начальник', 'друг', 'приятель', 'бабушка']) 
+         
 
 
 # TODO: реализовать использование альтернативных типов. рандом
 # TODO: реализовать использование флага to_be "буду делать" для будущего времени (и в файле добавь)
-# TODO: реализовать "я должен сделать" (тоже в инфинитив ставится)
 # TODO: реализовать склонение по времени
 # сказуемое
 class Predicate():
-    def __init__(self, words=None, morph=None, subject=None, has_object=0, to_be=0):
+    def __init__(self, words=None, morph=None, noun_type=None, subject=None, has_object=0, has_adv=0, to_be=0):
 
         self.has_object = has_object
+        self.has_adv = has_adv
         subj = morph.parse(subject.word)[0]
-        verbs = words['verb']
+        verbs = words['verb'].fillna(value=0)
 
-        if self.has_object:
-            self.info = verbs[verbs.noun_type.isin(['thing', 'person'])].sample()
+        # насильно проставляем тип
+        if noun_type:
+            self.info = verbs[verbs.noun_type==noun_type].sample()
+
+        # или решаем автоматически
         else:
-            self.info = verbs[verbs.noun_type.isin(['place', 'project'])].sample()
+            if self.has_object:
+                self.info = verbs[verbs.noun_type.isin(['thing', 'person', 'project'])].sample()
+            # TODO: есть ещё один кейс - "поработать над чем-то где-то" / "поработаь над чем-то для чего-то или кого-то"
+            else:
+                self.info = verbs[verbs.noun_type.isin(['place'])].sample()
 
         self.word = morph.parse(self.info.iloc[0, 0])[0]
+        self.aspc = 'impf'
+        if 'perf' in self.word.tag:
+            self.aspc = 'perf'
         self.noun_type = self.info.iloc[0, 3]
+        self.case_obj = self.info.iloc[0, 5]
 
+        # SPICE
         # "мне нужно"
         if 'datv' in subj.tag:
             self.word = self.word.normal_form
@@ -37,19 +57,27 @@ class Predicate():
             self.word = f"{random.choice(['нужно', 'надо', 'придется', 'давно пора'])} {self.word}"
         # "я должен", "она должна"
         # TODO: учитывать контекст пола юзера
-        # TODO: рандомный выбор времени, мб настоящее и прошлое; в соответствии с ним выбор спайса из таблицы (ее тоже надо сделать)
         else:
             self.word = self.word.normal_form
-            spice = random.choice(['должен', 'собираюсь', 'хочу', 'обязался', 'планирую', 'планировал', 'хотел', 'собирался', 'обещал'])
+            tense = random.choice(['past']) # убрал настоящее - с ним мороки много, можно потом добавить 
+            # TODO: "должен" не склоняется?.. надо что-то делать с этим. а также с "вынужден", "обязан"...это другая часть речи и надо делать под нее обработку
+            # TODO: отдельная таблица для зачинов
+            # TODO: склонение спайса для он-она-они не работает
+            spice = random.choice(['собираться', 'планировать', 'хотеть', 'обещать'])
             spice = morph.parse(spice)[0]
-            for grm in ['1per', '2per', '3per', 'sing', 'plur']:
-                if grm in subj.tag:
-                    spice_modified = spice.inflect({grm})
-                    if spice_modified:
-                        spice = spice.inflect({grm})
-                    else:
-                        raise Exception(f'Error: Could not inflect on word "{spice.word}" !')
             
+            if tense == 'pres' and 'anim' in subj.tag:
+                spice = spice.inflect({'3per'})
+            else:
+                for grm in ['1per', '2per', '3per', 'sing', 'plur', 'masc', 'femn']:
+                    if grm in subj.tag:
+                        spice_modified = spice.inflect({grm})
+                        if spice_modified:
+                            spice = spice_modified
+                        else:
+                            raise Exception(f'Error: Could not inflect on word "{spice.word}" !')
+                spice = spice.inflect({tense})
+
             self.word = f"{spice.word} {self.word}"
 
 
@@ -58,41 +86,61 @@ class Object():
     def __init__(self, words=None, morph=None, predicate=None):
         nouns = words['noun']
         self.type = predicate.noun_type
-        self.info = nouns[nouns.type == self.type].sample()
+        self.info = nouns[nouns.type==self.type].sample()
 
         n = morph.parse(self.info.iloc[0, 0])[0]
-        self.word = n.inflect({'accs'}).word
+        # TODO: другие падежи для дополнения
+        # везти тёщу, работать над проектом, успевать к вечеринке
+
+        self.case = 'accs'
+        if predicate.case_obj:
+            self.case = predicate.case_obj
+
+        self.word = n.inflect({self.case}).word
 
 
-# TODO
 # обстоятельство и предлог
 class Adverbial():
     def __init__(self, words=None, morph=None, predicate=None, object=None):
         nouns = words['noun']
-        if predicate.has_object:
+        #self.info = None #костыль
+        if object:
             if object.type == 'person':
-                self.info = nouns[nouns.type.isin(['place', 'event'])].sample()
+                self.info = nouns[nouns.type.isin(['place', 'event', 'person'])].sample()
             if object.type == 'thing':
-                self.info = nouns[nouns.type.isin(['place'])].sample() 
+                self.info = nouns[nouns.type.isin(['place', 'person'])].sample()
+            # TODO: реализовать кейсы "поработать над работой для жены", "поработать над работой с женой"
+            if object.type == 'project':
+                self.info = nouns[nouns.type.isin(['person'])].sample() 
         else:
-            self.info = nouns[nouns.type.isin(['place', 'event', 'project'])].sample()
+            self.info = nouns[nouns.type==predicate.noun_type].sample()
 
-        self.type = self.info.iloc[0, 3]
+        #
+        # FIXME: почему-то пишет 'Adverbial' object has no attribute 'info'
+        self.type = self.info.iloc[0, 1]
 
         n = morph.parse(self.info.iloc[0, 0])[0]
 
-        # TODO: словарь соответствия блэт, чтобы без этих условий обойтись
+        # TODO: вместо этого блока - словарь соответствий для падежей
         if self.type == 'person':
-            n = n.inflect({'datv'})
+            if object.type == 'person':
+                self.case = 'datv'
+            if object.type == 'thing':
+                self.case = 'gent'
+            if object.type == 'project':
+                self.case = random.choice(['gent', 'ablt'])               
         else:
-            # TODO: добавить person в кейсе ЗА тёщей, но там надо логику в целом улучшать
+            # TODO: более продвинутое присвоение падежей
             cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'project': 'ablt'}
-            n = n.inflect({cases[self.type]}) 
+            self.case = cases[self.type]
+        n = n.inflect({self.case}) 
 
-        predlogs = {'person': 'к', 'thing': 'за', 'place': 'в', 'place_open': 'на', 'event': 'на', 'project': 'над'}
-        predlog = predlogs[self.type]
 
-        self.word = f'{predlog} {n.word}'
+        # TODO: предлог согласовывается с местом
+        #predlogs = {'person': 'к', 'thing': 'за', 'place': 'в', 'place_open': 'на', 'event': 'на', 'project': 'над'}
+        #predlog = predlogs[self.type]
+
+        self.word = n.word
 
 
 
@@ -101,8 +149,18 @@ class Adverbial():
 # определение
 class Attribute():
     pass
-    
 
+
+
+class Predlog():
+    def __init__(self, words, noun):
+        predlogs = words['predlog'].fillna(value='')
+        self.info = predlogs[(predlogs.noun_type==noun.type) & (predlogs.noun_case==noun.case)].sample()
+        self.word = self.info.iloc[0, 0]
+
+
+
+# TODO: рефакторнуть все спайсы в один класс? и хранить в одной таблице?
 class Beginning():
     def __init__(self, words):
         beginnings = words['beginning']
@@ -110,3 +168,10 @@ class Beginning():
         self.word = self.info.iloc[0, 0]
         if self.info.iloc[0, 1]:
             self.word += ','
+
+
+class Ending():
+    def __init__(self, words):
+        endings = words['ending']
+        self.info = endings.sample()
+        self.word = self.info.iloc[0, 0]
