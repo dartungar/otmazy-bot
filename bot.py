@@ -13,7 +13,7 @@ def get_form(word, morph, case):
 
 
 def create_random_template():
-    number = random.randint(1, 3)
+    number = random.randint(1, 4)
     if number == 1:
         tmplt = template.Template_1(words=df, morph=morph)
     if number == 2:
@@ -32,10 +32,9 @@ if __name__ == '__main__':
 
     for i in range(10):
         text = str(create_random_template()[0]) +' '+  create_random_template()[1].text
-
         print(text)
 
-    exit()
+
 
 
 

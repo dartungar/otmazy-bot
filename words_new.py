@@ -46,8 +46,8 @@ class Predicate():
         self.aspc = 'impf'
         if 'perf' in self.word.tag:
             self.aspc = 'perf'
-        self.noun_type = self.info.iloc[0, 3]
-        self.case_obj = self.info.iloc[0, 5]
+        self.noun_type = self.info.iloc[0, 1]
+        self.case_obj = self.info.iloc[0, 3]
 
         # SPICE
         # "мне нужно"
@@ -104,14 +104,16 @@ class Adverbial():
     def __init__(self, words=None, morph=None, predicate=None, object=None):
         nouns = words['noun']
         #self.info = None #костыль
+        # TODO: этот кусок можно отрефакторить в таблицу
+        # TODO: ИЛИ тупо передавать тип обстоятельства, так у меня больше контроля за выходками генератора
         if object:
             if object.type == 'person':
-                self.info = nouns[nouns.type.isin(['place', 'event', 'person'])].sample()
+                self.info = nouns[nouns.type.isin(['place', 'place_open', 'event', 'person'])].sample()
             if object.type == 'thing':
-                self.info = nouns[nouns.type.isin(['place', 'person'])].sample()
+                self.info = nouns[nouns.type.isin(['place', 'place_open', 'person'])].sample()
             # TODO: реализовать кейсы "поработать над работой для жены", "поработать над работой с женой"
             if object.type == 'project':
-                self.info = nouns[nouns.type.isin(['person'])].sample() 
+                self.info = nouns[nouns.type.isin(['person', 'project', 'event'])].sample() 
         else:
             self.info = nouns[nouns.type==predicate.noun_type].sample()
 
@@ -131,14 +133,19 @@ class Adverbial():
                 self.case = random.choice(['gent', 'ablt'])               
         else:
             # TODO: более продвинутое присвоение падежей
-            cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'project': 'ablt'}
+            cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt'}
             self.case = cases[self.type]
+        
+        # TODO: поганый костыль для фикса ситуаций когда мы делаем проект для кого-то или чего-то
+        if object and object.type == 'project':
+            if self.type == 'person':
+                self.case = random.choice(['albt', 'gent'])
+            if self.type == 'event':
+                self.case = 'datv'
+            else:
+                self.case = 'gent'
+
         n = n.inflect({self.case}) 
-
-
-        # TODO: предлог согласовывается с местом
-        #predlogs = {'person': 'к', 'thing': 'за', 'place': 'в', 'place_open': 'на', 'event': 'на', 'project': 'над'}
-        #predlog = predlogs[self.type]
 
         self.word = n.word
 
@@ -146,6 +153,7 @@ class Adverbial():
 
 # на потом, пока не надо
 # идея: прилагательное - для проектов и дел, например "срочное дело", "важный проект". надо склонять
+# вообще прилагательные точно так же подходят по контекстам и их реально надо склонять
 # определение
 class Attribute():
     pass
@@ -171,7 +179,11 @@ class Beginning():
 
 
 class Ending():
-    def __init__(self, words):
+    def __init__(self, words, subject):
         endings = words['ending']
         self.info = endings.sample()
         self.word = self.info.iloc[0, 0]
+
+        if not subject.is_myself:
+            pass
+
