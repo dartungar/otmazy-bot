@@ -58,16 +58,16 @@ class Template_3():
         self.text = f'{beginning.word} {podlezh.word} {skaz.word} {dop_predl.word} {dopolnenie.word}'
 
 
-# поработаю над проектом с тёщей? пока не отличается от template1 ибо там уже это реализовано
-# хотим разное - надо отуплять конструкторы!
+# "жена хотела ... "
 class Template_4():
     def __init__(self, words=None, morph=None):
         beginning = words_new.Beginning(words=words)
-        podlezh = words_new.Subject(words=words, subject_is_myself=1)
+        podlezh = words_new.Subject(words=words, subject_is_myself=0)
         skaz = words_new.Predicate(words=words, morph=morph, subject=podlezh, has_object=1)
         dopolnenie = words_new.Object(words, morph, predicate=skaz)
         dop_predl = words_new.Predlog(words=words, noun=dopolnenie)
         obstoyatelstvo = words_new.Adverbial(words, morph, predicate=skaz, object=dopolnenie)
         obst_predl = words_new.Predlog(words=words, noun=obstoyatelstvo)
+        ending = words_new.Ending(words=words, subject=podlezh)
         
-        self.text = f'{beginning.word} {podlezh.word} {skaz.word} {dop_predl.word} {dopolnenie.word} {obst_predl.word} {obstoyatelstvo.word}'
+        self.text = f'{beginning.word} {podlezh.word} {skaz.word} {dop_predl.word} {dopolnenie.word} {obst_predl.word} {obstoyatelstvo.word}, {ending.word}'

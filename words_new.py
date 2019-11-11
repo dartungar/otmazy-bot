@@ -10,11 +10,13 @@ class Subject():
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
         # возможно это уже совсем другой шаблон
+
+        subjects = words['subj'].fillna(value=0)
+
         self.is_myself = subject_is_myself
-        if subject_is_myself:
-            self.word = random.choice(['я', 'мне']) 
-        else:
-            self.word = random.choice(['жена', 'начальник', 'друг', 'приятель', 'бабушка']) 
+        self.info = subjects[subjects.is_myself==subject_is_myself].sample()
+        self.word = self.info.iloc[0, 0]
+
          
 
 
@@ -26,7 +28,7 @@ class Predicate():
     def __init__(self, words=None, morph=None, noun_type=None, subject=None, has_object=0, has_adv=0, to_be=0):
 
         self.has_object = has_object
-        self.has_adv = has_adv
+        #self.has_adv = has_adv
         subj = morph.parse(subject.word)[0]
         verbs = words['verb'].fillna(value=0)
 
@@ -43,9 +45,6 @@ class Predicate():
                 self.info = verbs[verbs.noun_type.isin(['place'])].sample()
 
         self.word = morph.parse(self.info.iloc[0, 0])[0]
-        self.aspc = 'impf'
-        if 'perf' in self.word.tag:
-            self.aspc = 'perf'
         self.noun_type = self.info.iloc[0, 1]
         self.case_obj = self.info.iloc[0, 3]
 
@@ -55,7 +54,7 @@ class Predicate():
             self.word = self.word.normal_form
             # TODO: более продвинутый спайс для "мне", "ей"
             self.word = f"{random.choice(['нужно', 'надо', 'придется', 'давно пора'])} {self.word}"
-        # "я должен", "она должна"
+        # "я cобирался", "она обещала"
         # TODO: учитывать контекст пола юзера
         else:
             self.word = self.word.normal_form

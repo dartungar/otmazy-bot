@@ -31,7 +31,9 @@ if __name__ == '__main__':
     df = pd.read_excel('otmazy_words.xlsx', index_col=0, sheet_name=None)
 
     for i in range(10):
-        text = str(create_random_template()[0]) +' '+  create_random_template()[1].text
+        temp = create_random_template()
+        text = f'{str(temp[0])} {temp[1].text}'
+        #str(create_random_template()[0]) +' '+  create_random_template()[1].text
         print(text)
 
 
