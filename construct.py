@@ -5,7 +5,7 @@
 
 
 
-def constructor(subject=None, predicate=None, object=None, adverbial=None, predlog=None, beginning=None, ending=None):
+def constructor(tense='pres'):
     
     # subject
     # subject_is_myself
