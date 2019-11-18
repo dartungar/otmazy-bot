@@ -2,7 +2,7 @@ import pandas as pd
 import pymorphy2
 import random
 import template
-from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
+#from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 morph = pymorphy2.MorphAnalyzer()
 

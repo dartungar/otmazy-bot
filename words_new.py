@@ -50,14 +50,15 @@ class Predicate():
 
         # SPICE
         # "мне нужно"
+        self.word = self.word.normal_form
+
         if 'datv' in subj.tag:
-            self.word = self.word.normal_form
+            
             # TODO: более продвинутый спайс для "мне", "ей"
             self.word = f"{random.choice(['нужно', 'надо', 'придется', 'давно пора'])} {self.word}"
         # "я cобирался", "она обещала"
         # TODO: учитывать контекст пола юзера
         else:
-            self.word = self.word.normal_form
             tense = random.choice(['past']) # убрал настоящее - с ним мороки много, можно потом добавить 
             # TODO: "должен" не склоняется?.. надо что-то делать с этим. а также с "вынужден", "обязан"...это другая часть речи и надо делать под нее обработку
             # TODO: отдельная таблица для зачинов

@@ -8,7 +8,7 @@
 # "я поеду с женой в гипермаркет"
 import pymorphy2
 
-from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
+#from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 import words_new
 
 # http://www.mylanguage.ru/materials/130/3181
