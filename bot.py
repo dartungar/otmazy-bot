@@ -2,9 +2,10 @@ import pandas as pd
 import pymorphy2
 import random
 import template
+from construct import constructor
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
-morph = pymorphy2.MorphAnalyzer()
+
 
 def get_form(word, morph, case):
     parsed = morph.parse(word)[0]
@@ -26,14 +27,20 @@ def create_random_template():
     return (number, tmplt)
 
 
+def test_constructor(words, morph):
+    return constructor(words=words, morph=morph)
+
+
 if __name__ == '__main__':
 
     df = pd.read_excel('otmazy_words.xlsx', index_col=0, sheet_name=None)
+    morph = pymorphy2.MorphAnalyzer()
 
     for i in range(10):
-        temp = create_random_template()
-        text = f'{str(temp[0])} {temp[1].text}'
+        #temp = create_random_template()
+        #text = f'{str(temp[0])} {temp[1].text}'
         #str(create_random_template()[0]) +' '+  create_random_template()[1].text
+        text = test_constructor(words=df, morph=morph)
         print(text)
 
 

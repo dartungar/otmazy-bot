@@ -1,4 +1,5 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
+import random
 
 def declensify(morph, word_parsed, subj):
     for grm in ['1per', '2per', '3per', 'sing', 'plur', 'masc', 'femn']:
@@ -33,6 +34,8 @@ class Subject():
 class PredicateSpice():
     def __init__(self, words, morph, tense='pres', subj=None, to_be=False):
 
+        subj = morph.parse(subj.word)[0]
+
         if to_be:
             tobe = morph.parse('быть')[0]
             tobe = tobe.inflect({tense})
@@ -65,7 +68,8 @@ class Predicate():
             
         self.info = verbs[verbs.noun_type == noun_type].sample()
         # спайс
-        self.word = self.info.iloc[0, 0].normal_form
+        self.word = morph.parse(self.info.iloc[0, 0])[0].normal_form
+        # TODO: более изящное решение через БД
         self.case_obj = self.info.iloc[0, 3]
 
 
@@ -77,7 +81,7 @@ class Predicate():
 class Noun():
     def __init__(self, words, morph, noun_type=None, case=None):
         nouns = words['noun'].fillna(value='')
-        self.info = nouns[nouns.noun_type==noun_type].sample()
+        self.info = nouns[nouns.type==noun_type].sample()
         n = morph.parse(self.info.iloc[0, 0])[0]
         self.word = n.inflect({case}).word
 
