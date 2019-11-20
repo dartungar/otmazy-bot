@@ -9,7 +9,7 @@ from helpers import *
 def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, object_type=None, has_beginning=False, has_ending=False):
     
     # subject
-    subject = Subject(words=words, subject_is_myself=subject_is_myself)
+    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
 
     # predicate spice
     # TODO: рандом с весом на to_be
@@ -18,21 +18,21 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     # predicate
     pred_noun_type = get_predicate_noun_type(object_type=object_type)
     predicate = Predicate(words=words, morph=morph, tense=tense, noun_type=pred_noun_type)
-
+    #predicate = declensify(morph, predicate.parsed, subject.parsed)
 
     # object
-    obj = ''
-    # если есть объект
-    if object_type:
-        obj_type = object_type
+    if predicate.case_obj:
+        obj_case = predicate.case_obj
+    else:
+        obj_case = 'accs'
 
-        if predicate.case_obj:
-            obj_case = predicate.case_obj
-        else:
-            obj_case = 'accs'
+    obj = Object(words=words, morph=morph, noun_type=object_type, case=obj_case)
 
-        obj = Object(words=words, morph=morph, noun_type=obj_type, case=obj_case)
-
+    # склоняем сказуемое
+    if predicate_spice:
+        predicate_spice = declensify(morph, predicate_spice.parsed, subject.parsed)
+    else:
+        predicate = declensify(morph, predicate.parsed, subject.parsed)
 
     # adverbial
     adv_type = get_adverbial_type(object_type=object_type, predicate_noun_type=pred_noun_type)
@@ -57,7 +57,7 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
         ending = Ending(words=words, morph=morph).word
     
     # TODO: Динамический конструктор. как минимум предлоги, beginning & ending стоит динамически вставлять
-    text = f'{beginning} {subject} {predicate_spice} {predicate} {obj} {predlog} {adverbial} {ending}'
+    text = f'{beginning} {subject.word} {predicate_spice.word} {predicate.word} {obj.word} {predlog.word} {adverbial.word} {ending}'
 
     return text
 
