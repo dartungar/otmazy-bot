@@ -28,17 +28,22 @@ def create_random_template():
 
 
 def test_constructor(words, morph):
-    tense = 'pres'
+    tense = 'future'
     subjim = random.randint(0, 1)
     obj_type = random.choice(['person', 'project', 'thing'])
     beginning = random.randint(0, 1)
-    ending = random.randint(0, 1)
+    if obj_type == 'project':
+        adv_type = random.choice(['person', 'event'])
+    else:
+        adv_type = None
+    ending = False if subjim else True
 
     return constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
                         subject_is_myself=subjim, 
-                        object_type=obj_type, 
+                        object_type=obj_type,
+                        adv_type=adv_type, 
                         has_beginning=beginning, 
                         has_ending=ending)
 

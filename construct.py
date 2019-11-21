@@ -6,7 +6,7 @@ from words_stupid import declensify, Subject, Predicate, PredicateSpice, Noun, O
 from helpers import *
 
 
-def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, object_type=None, has_beginning=False, has_ending=False):
+def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, object_type=None, adv_type=None, has_beginning=False, has_ending=False):
     
     # subject
     subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
@@ -28,14 +28,19 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
 
     obj = Object(words=words, morph=morph, noun_type=object_type, case=obj_case)
 
+    predlog_obj = Predlog(words=words, morph=morph, predlog_type=object_type, case=obj_case)
+
     # склоняем сказуемое
     if predicate_spice:
-        predicate_spice = declensify(morph, predicate_spice.parsed, subject.parsed)
+        predicate_spice = declensify(morph, predicate_spice.parsed, subject.parsed, tense='past')
     else:
         predicate = declensify(morph, predicate.parsed, subject.parsed)
 
     # adverbial
-    adv_type = get_adverbial_type(object_type=object_type, predicate_noun_type=pred_noun_type)
+    if adv_type:
+        adv_type = adv_type
+    else:
+        adv_type = get_adverbial_type(object_type=object_type, predicate_noun_type=pred_noun_type)
     adv_case = get_adverbial_case(object_type=object_type, adverbial_type=adv_type)
     adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
 
@@ -44,7 +49,7 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     # пока обойдемся предлогом к обстоятельству
     # predlog_type = None
     # predlog_case = None
-    predlog = Predlog(words=words, morph=morph, predlog_type=adv_type, case=adv_case)
+    predlog_adv = Predlog(words=words, morph=morph, predlog_type=adv_type, case=adv_case)
 
     # beginning
     beginning = ''
@@ -57,7 +62,7 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
         ending = Ending(words=words, morph=morph).word
     
     # TODO: Динамический конструктор. как минимум предлоги, beginning & ending стоит динамически вставлять
-    text = f'{beginning} {subject.word} {predicate_spice.word} {predicate.word} {obj.word} {predlog.word} {adverbial.word} {ending}'
+    text = f'{beginning} {subject.word} {predicate_spice.word} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
 
     return text
 

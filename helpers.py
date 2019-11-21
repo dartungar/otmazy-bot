@@ -36,7 +36,8 @@ def get_adverbial_case(object_type, adverbial_type):
         if object_type == 'thing':
             return 'gent'
         if object_type == 'project':
-            return random.choice(['gent', 'ablt'])               
+            return 'gent'
+            #return random.choice(['gent', 'ablt'])               
     else:
         # TODO: более продвинутое присвоение падежей
         cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt'}
