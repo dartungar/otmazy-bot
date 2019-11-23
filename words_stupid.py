@@ -1,20 +1,6 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
 import random
-
-def declensify(morph, word_parsed, subj, tense='pres', context=None):
-    word = word_parsed
-    if tense == 'pres' and 'anim' in subj.tag:
-        word = word_parsed.inflect({'3per'})
-    else:
-        for grm in ['1per', '2per', '3per', 'sing', 'plur', tense, 'masc', 'femn']:
-            if grm in subj.tag:
-                word_modified = word_parsed.inflect({grm})
-                if word_modified:
-                    word = word_modified
-                else:
-                    continue
-                    #raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')
-    return word
+from helpers import declensify
 
 
 # существительное
@@ -49,7 +35,7 @@ class PredicateSpice():
         # мне нужно, тёща придется
         if 'datv' in subj.tag:
             if to_be:
-                self.word = f"{tobe} {random.choice(['нужно', 'надо', 'необходимо'])}"
+                self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe}"
             if not to_be:
                 self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
             self.parsed = morph.parse(self.word)[0]
@@ -57,10 +43,10 @@ class PredicateSpice():
         elif 'nomn' in subj.tag:
             n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'клясться']))[0]
             # TODO: избавиться от необходимости передавать подлежащее
-            if tense=='pres' and 'anim' in subj.tag:
-                n = n.inflect({'3per'})
-            else:
-                n = declensify(morph, n, subj)
+            
+            n = declensify(morph, n, subj, tense=tense)
+            #if n:
+            #print(n)
             #print(f"n {n.word}")            
             self.word = n.word
             self.parsed = n 
@@ -72,17 +58,18 @@ class PredicateSpice():
 
 
 class Predicate():
-    def __init__(self, words, morph, tense='pres', noun_type=None, case=None, context=None):
+    def __init__(self, words, morph, tense='pres', noun_type=None, case=None, aspc='impf', context=None):
         if noun_type:
             # тип
             verbs = words['verb'].fillna(value=0)
                 
-            self.info = verbs[verbs.noun_type == noun_type].sample()
+            self.info = verbs[(verbs.noun_type==noun_type) & (verbs.aspc==aspc)].sample()
             self.parsed = morph.parse(self.info.iloc[0, 0])[0]
             # спайс
             self.word = self.parsed.normal_form
             # TODO: более изящное решение через БД
             self.case_obj = self.info.iloc[0, 3]
+            self.aspc = aspc
 
         else:
             self.info = None
@@ -101,7 +88,7 @@ class Noun():
             n = morph.parse(self.info.iloc[0, 0])[0]
             #print(f'type: {noun_type}, case: {case}')
             n_case = n.inflect({case})
-            if n:
+            if n_case:
                 self.word = n_case.word
             else:
                 raise Exception(f'Could not inflect case {case} on word {n.word}')
@@ -151,7 +138,7 @@ class Beginning():
 class Ending():
     def __init__(self, words, morph, tense='pres', context=None):
         endings = words['ending']
-        self.info = endings.sample()
+        self.info = endings[endings.tense==tense].sample()
         self.word = self.info.iloc[0, 0]
         # + помогать
 

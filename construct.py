@@ -2,22 +2,26 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import declensify, Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, Ending
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, Ending
 from helpers import *
 
 
-def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, object_type=None, adv_type=None, has_beginning=False, has_ending=False):
+def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, has_predicate_spice=True, object_type=None, adv_type=None, has_beginning=False, has_ending=False):
     
     # subject
     subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
 
     # predicate spice
     # TODO: рандом с весом на to_be
-    predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=False)
+    predicate_spice = ''
+    pred_aspc = 'impf'
+    if has_predicate_spice or 'datv' in subject.parsed.tag:
+        predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=False).word
+        pred_aspc = 'perf'
 
     # predicate
     pred_noun_type = get_predicate_noun_type(object_type=object_type)
-    predicate = Predicate(words=words, morph=morph, tense=tense, noun_type=pred_noun_type)
+    predicate = Predicate(words=words, morph=morph, tense=tense, noun_type=pred_noun_type, aspc=pred_aspc)
     #predicate = declensify(morph, predicate.parsed, subject.parsed)
 
     # object
@@ -26,15 +30,21 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     else:
         obj_case = 'accs'
 
+    # склоняем сказуемое, если нет спайса
+    if not predicate_spice:
+        if pred_aspc == 'perf':
+            predicate = declensify(morph, predicate.parsed, subject.parsed, tense=tense)
+        else:
+            predicate = declensify(morph, predicate.parsed, subject.parsed)
+ 
+
+
+
     obj = Object(words=words, morph=morph, noun_type=object_type, case=obj_case)
 
     predlog_obj = Predlog(words=words, morph=morph, predlog_type=object_type, case=obj_case)
 
-    # склоняем сказуемое
-    if predicate_spice:
-        predicate_spice = declensify(morph, predicate_spice.parsed, subject.parsed, tense='past')
-    else:
-        predicate = declensify(morph, predicate.parsed, subject.parsed)
+
 
     # adverbial
     if adv_type:
@@ -59,10 +69,10 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     # ending
     ending = ''
     if has_ending:
-        ending = Ending(words=words, morph=morph).word
+        ending = Ending(words=words, morph=morph, tense=tense).word
     
     # TODO: Динамический конструктор. как минимум предлоги, beginning & ending стоит динамически вставлять
-    text = f'{beginning} {subject.word} {predicate_spice.word} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
+    text = f'{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
 
     return text
 

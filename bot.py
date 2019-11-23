@@ -28,9 +28,10 @@ def create_random_template():
 
 
 def test_constructor(words, morph):
-    tense = 'future'
+    tense = 'futr' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
     subjim = random.randint(0, 1)
     obj_type = random.choice(['person', 'project', 'thing'])
+    has_pred_spice = random.randint(0, 1)
     beginning = random.randint(0, 1)
     if obj_type == 'project':
         adv_type = random.choice(['person', 'event'])
@@ -42,6 +43,7 @@ def test_constructor(words, morph):
                         morph=morph, 
                         tense=tense, 
                         subject_is_myself=subjim, 
+                        has_predicate_spice=has_pred_spice,
                         object_type=obj_type,
                         adv_type=adv_type, 
                         has_beginning=beginning, 
