@@ -65,12 +65,14 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     beginning = ''
     if has_beginning:
         beginning = Beginning(words=words, morph=morph).word
+        #beginning = declensify_text(morph, beginning, subject, tense, context)
 
     # ending
     ending = ''
     if has_ending:
         ending = Ending(words=words, morph=morph, tense=tense).word
-    
+        #ending = declensify_text(morph, ending, subject.parsed, tense, context)  
+
     # TODO: Динамический конструктор. как минимум предлоги, beginning & ending стоит динамически вставлять
     text = f'{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
 

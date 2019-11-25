@@ -138,7 +138,7 @@ class Beginning():
 class Ending():
     def __init__(self, words, morph, tense='pres', context=None):
         endings = words['ending']
-        self.info = endings[endings.tense==tense].sample()
+        self.info = endings[(endings.tense==tense)|(endings.tense=='all')].sample()
         self.word = self.info.iloc[0, 0]
         # + помогать
 

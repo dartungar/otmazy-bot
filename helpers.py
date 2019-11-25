@@ -3,6 +3,7 @@
 import random
 
 
+# TODO: выделить в отдельные функции genderify, timify, personify, multify
 def declensify(morph, word_parsed, subj, tense='pres', context=None):
     word = word_parsed
     if tense == 'pres' and 'anim' in subj.tag:
@@ -14,9 +15,20 @@ def declensify(morph, word_parsed, subj, tense='pres', context=None):
                 if word_modified:
                     word = word_modified
                 else:
-                    raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')                    
+                    pass #TODO: логировать в info импотенцию склонятора
+                    #raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')                    
                     
     return word
+
+
+# TODO: склонение целого словосочетания - для beginning & ending чтобы не вылавливать из середины "могу", "могла" итд
+def declensify_text(morph, text, subj, tense, context):
+    text_declensified = ''
+    for word in text.split():
+        word = morph.parse(word)[0]
+        text_declensified += declensify(morph, word, subj, tense=tense, context=context).word + ' '
+    return text_declensified
+
 
 
 def get_predicate_noun_type(object_type=None):
