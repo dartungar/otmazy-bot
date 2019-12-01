@@ -17,9 +17,7 @@ class Subject():
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
         self.word = self.info.iloc[0, 0]
         self.parsed = morph.parse(self.word)[0]
-
-
-        
+ 
 
 # TODO: реворкнуть в выбор из БД PredicateSpice?
 # TODO: учитывать время
@@ -32,7 +30,7 @@ class PredicateSpice():
             tobe = morph.parse('быть')[0]
             tobe = tobe.inflect({tense})
 
-        # мне нужно, тёща придется
+        # мне нужно, тёще придется
         if 'datv' in subj.tag:
             if to_be:
                 self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe}"
@@ -54,29 +52,34 @@ class PredicateSpice():
             raise Exception('Invalid Case for Predicate Spice!')
         
 
-
-
-
+# сказуемое
 class Predicate():
-    def __init__(self, words, morph, tense='pres', noun_type=None, case=None, aspc='impf', context=None):
+    def __init__(self, words, morph, tense='pres', verb_type=None, noun_type=None, case=None, aspc='impf', context=None):
+        
+        verbs = words['verb'].fillna(value=0)
+        
+        # можем прямо определить тип сказуемого
+        if verb_type:
+            self.info = verbs[(verbs.type==verb_type) & (verbs.aspc==aspc)].sample()
+        
+        # ...или прямо определить согласование с существительными
         if noun_type:
             # тип
-            verbs = words['verb'].fillna(value=0)
-                
             self.info = verbs[(verbs.noun_type==noun_type) & (verbs.aspc==aspc)].sample()
-            self.parsed = morph.parse(self.info.iloc[0, 0])[0]
-            # спайс
-            self.word = self.parsed.normal_form
-            # TODO: более изящное решение через БД
-            self.case_obj = self.info.iloc[0, 3]
-            self.aspc = aspc
+        
+        self.parsed = morph.parse(self.info.iloc[0, 0])[0]
+        # спайс
+        self.word = self.parsed.normal_form
+        # TODO: более изящное решение через БД
+        self.case_obj = self.info.iloc[0, 3]
+        self.aspc = aspc
+        self.type = self.info.iloc[0, 5]
+        self.type_apt = self.info.iloc[0, 6]
 
-        else:
+        if not verb_type and not noun_type:
             self.info = None
             self.word = ''
 
-        # принимает падеж? TODO: разобраться, надо ли оно мне
-        pass
 
 
 # класс-родитель для всех существительных

@@ -51,7 +51,7 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
         adv_type = adv_type
     else:
         adv_type = get_adverbial_type(object_type=object_type, predicate_noun_type=pred_noun_type)
-    adv_case = get_adverbial_case(object_type=object_type, adverbial_type=adv_type)
+    adv_case = get_adverbial_case(object_type=object_type, adverbial_type=adv_type, predicate_noun_type=pred_noun_type)
     adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
 
     # predlog
@@ -73,7 +73,9 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
         ending = Ending(words=words, morph=morph, tense=tense).word
         #ending = declensify_text(morph, ending, subject.parsed, tense, context)  
 
-    # TODO: Динамический конструктор. как минимум предлоги, beginning & ending стоит динамически вставлять
+    
+    
+    
     text = f'{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
 
     return text

@@ -36,14 +36,15 @@ def get_predicate_noun_type(object_type=None):
         noun_type = object_type
     else:
         # TODO: выбор из словаря или что-то такое же изящное
-        noun_type = 'place'
+        noun_type = random.choice(['place'])
     return noun_type
 
 
 
-def get_adverbial_type(object_type, predicate_noun_type):
+def get_adverbial_type(object_type=None, predicate_type=None, predicate_noun_type=None):
     # TODO: переделать из той залупы в таблицу соответствий object_type <-> adv_type
     # тогда и функция не нужна будет
+    # TODO: реализовать применение verb_type
     if object_type:
         if object_type == 'person':
             return random.choice(['place', 'place_open', 'event', 'person'])
@@ -57,7 +58,7 @@ def get_adverbial_type(object_type, predicate_noun_type):
         return predicate_noun_type
 
 
-def get_adverbial_case(object_type, adverbial_type):
+def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
     # TODO: переделать в таблицу соответствий!
     if adverbial_type == 'person':
         if object_type == 'person':
@@ -66,7 +67,13 @@ def get_adverbial_case(object_type, adverbial_type):
             return 'gent'
         if object_type == 'project':
             return 'gent'
-            #return random.choice(['gent', 'ablt'])               
+            #return random.choice(['gent', 'ablt'])
+    if not object_type:
+        if predicate_noun_type == 'person':
+            return 'datv'
+        if predicate_noun_type == 'place':
+            return 'accs'
+
     else:
         # TODO: более продвинутое присвоение падежей
         cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt'}

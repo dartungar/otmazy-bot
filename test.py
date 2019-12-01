@@ -28,19 +28,16 @@ def create_random_template():
 
 
 def test_constructor(words, morph):
-    print('initializing test_constructor...')
     tense = 'futr' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
     subjim = random.randint(0, 1)
-    obj_type = random.choice(['person', 'project', 'thing'])
+    obj_type = random.choice(['person', 'project', 'thing', None])
     has_pred_spice = random.randint(0, 1)
     beginning = random.randint(0, 1)
     if obj_type == 'project':
-        adv_type = random.choice(['person', 'event'])
+        adv_type = random.choice(['person', None])
     else:
         adv_type = None
-    ending = False if subjim else True
-
-    print('constructor parameters set')
+    ending = False if subjim else random.randint(0, 1)
 
     text = constructor(words=words, 
                         morph=morph, 
@@ -52,11 +49,7 @@ def test_constructor(words, morph):
                         has_beginning=beginning, 
                         has_ending=ending)
 
-    print('generated non-prettified text')
-
     text = text.replace('  ', ' ').strip().capitalize()
-
-    print('prettified text')
 
     return text
 
