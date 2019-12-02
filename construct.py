@@ -6,7 +6,7 @@ from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adver
 from helpers import *
 
 
-def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, has_predicate_spice=True, object_type=None, adv_type=None, has_beginning=False, has_ending=False):
+def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, has_predicate_spice=True, has_object=False, has_adverbial=True, has_beginning=False, has_ending=False):
     
     # subject
     subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
@@ -20,46 +20,43 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
         pred_aspc = 'perf'
 
     # predicate
-    pred_noun_type = get_predicate_noun_type(object_type=object_type)
-    predicate = Predicate(words=words, morph=morph, tense=tense, noun_type=pred_noun_type, aspc=pred_aspc)
-    #predicate = declensify(morph, predicate.parsed, subject.parsed)
+    predicate = Predicate(words=words, morph=morph, tense=tense, has_object=has_object, aspc=pred_aspc)
 
-    # object
-    if predicate.case_obj:
-        obj_case = predicate.case_obj
+
+    # object TODO: проверить актуальна ли такая механика
+    if predicate.case_object:
+        obj_case = predicate.case_object
     else:
         obj_case = 'accs'
 
     # склоняем сказуемое, если нет спайса
     if not predicate_spice:
         if pred_aspc == 'perf':
-            predicate = declensify(morph, predicate.parsed, subject.parsed, tense=tense)
+            predicate.word = declensify(morph, predicate.parsed, subject.parsed, tense=tense).word
         else:
-            predicate = declensify(morph, predicate.parsed, subject.parsed)
+            predicate.word = declensify(morph, predicate.parsed, subject.parsed).word
  
 
+    predlog_obj = ''
+    if has_object:
+        obj_type = get_noun_type(words=words, verb_type=predicate.type, noun_kind='obj')
+        obj = Object(words=words, morph=morph, noun_type=obj_type, case=obj_case)
+
+        predlog_obj = Predlog(words=words, morph=morph, predlog_type=obj.type, case=obj_case).word
 
 
-    obj = Object(words=words, morph=morph, noun_type=object_type, case=obj_case)
+    if has_adverbial:
+        # adverbial
+        adv_type = get_noun_type(words=words, verb_type=predicate.type, noun_kind='adv')
+        adv_case = get_adverbial_case(object_type=obj.type if has_object else None, adverbial_type=adv_type, predicate_noun_type=obj_type if has_object else None)
+        adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
 
-    predlog_obj = Predlog(words=words, morph=morph, predlog_type=object_type, case=obj_case)
-
-
-
-    # adverbial
-    if adv_type:
-        adv_type = adv_type
-    else:
-        adv_type = get_adverbial_type(object_type=object_type, predicate_noun_type=pred_noun_type)
-    adv_case = get_adverbial_case(object_type=object_type, adverbial_type=adv_type, predicate_noun_type=pred_noun_type)
-    adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
-
-    # predlog
-    # TODO: предлоги разве только в одном месте?
-    # пока обойдемся предлогом к обстоятельству
-    # predlog_type = None
-    # predlog_case = None
-    predlog_adv = Predlog(words=words, morph=morph, predlog_type=adv_type, case=adv_case)
+        # predlog
+        # TODO: предлоги разве только в одном месте?
+        # пока обойдемся предлогом к обстоятельству
+        # predlog_type = None
+        # predlog_case = None
+        predlog_adv = Predlog(words=words, morph=morph, predlog_type=adv_type, case=adv_case)
 
     # beginning
     beginning = ''
@@ -76,7 +73,7 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     
     
     
-    text = f'{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
+    text = f'{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj} {obj.word} {predlog_adv.word} {adverbial.word} {ending}'
 
     return text
 

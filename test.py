@@ -30,24 +30,15 @@ def create_random_template():
 def test_constructor(words, morph):
     tense = 'futr' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
     subjim = random.randint(0, 1)
-    obj_type = random.choice(['person', 'project', 'thing', None])
-    has_pred_spice = random.randint(0, 1)
-    beginning = random.randint(0, 1)
-    if obj_type == 'project':
-        adv_type = random.choice(['person', None])
-    else:
-        adv_type = None
-    ending = False if subjim else random.randint(0, 1)
 
     text = constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
-                        subject_is_myself=subjim, 
-                        has_predicate_spice=has_pred_spice,
-                        object_type=obj_type,
-                        adv_type=adv_type, 
-                        has_beginning=beginning, 
-                        has_ending=ending)
+                        subject_is_myself=random.randint(0, 1), 
+                        has_predicate_spice=random.randint(0, 1),
+                        has_object=random.randint(0, 1),
+                        has_beginning=random.randint(0, 1), 
+                        has_ending=False if subjim else random.randint(0, 1))
 
     text = text.replace('  ', ' ').strip().capitalize()
 

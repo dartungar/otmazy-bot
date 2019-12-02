@@ -6,8 +6,15 @@ import random
 # TODO: выделить в отдельные функции genderify, timify, personify, multify
 def declensify(morph, word_parsed, subj, tense='pres', context=None):
     word = word_parsed
+    # словосочетания пока не парсим от слова совсем
+    if len(word.word.split()) > 1:
+        return word
+    
+    # TODO: сейчас выдает ошибку когда инфлектишь 3per & present tense. нужна более продвинутая функция с учетом perf & imperf
     if tense == 'pres' and 'anim' in subj.tag:
-        word = word_parsed.inflect({'3per', tense})
+        word = word_parsed.inflect({'3per'})
+        if not word:
+            raise Exception(f'could not inflect on word {word_parsed.word}')
     else:
         for grm in ['1per', '2per', '3per', 'sing', 'plur', tense, 'masc', 'femn']:
             if grm in subj.tag:
@@ -15,9 +22,10 @@ def declensify(morph, word_parsed, subj, tense='pres', context=None):
                 if word_modified:
                     word = word_modified
                 else:
+                    print(f'could not declensify word {word_parsed.word}')
                     pass #TODO: логировать в info импотенцию склонятора
                     #raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')                    
-                    
+    #print(f'declensified word {word}')            
     return word
 
 
@@ -40,7 +48,7 @@ def get_predicate_noun_type(object_type=None):
     return noun_type
 
 
-
+# old func
 def get_adverbial_type(object_type=None, predicate_type=None, predicate_noun_type=None):
     # TODO: переделать из той залупы в таблицу соответствий object_type <-> adv_type
     # тогда и функция не нужна будет
@@ -58,6 +66,7 @@ def get_adverbial_type(object_type=None, predicate_type=None, predicate_noun_typ
         return predicate_noun_type
 
 
+# old func
 def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
     # TODO: переделать в таблицу соответствий!
     if adverbial_type == 'person':
@@ -69,9 +78,9 @@ def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
             return 'gent'
             #return random.choice(['gent', 'ablt'])
     if not object_type:
-        if predicate_noun_type == 'person':
+        if adverbial_type == 'person':
             return 'datv'
-        if predicate_noun_type == 'place':
+        if adverbial_type in ['place', 'place_open', 'event', 'project']: #FIXME: почему проект то?
             return 'accs'
 
     else:
@@ -82,3 +91,32 @@ def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
 
 
 
+def get_noun_type(words, verb_type, noun_kind):
+    types = words['types']
+    types = types[types.verb_type==verb_type]
+
+    if noun_kind == 'obj':
+        #print(types.obj_type.iloc[0])
+        obj_types = types.obj_type.iloc[0].split(', ')
+
+
+        try:
+            #print(f'obj series size {types.obj_type.size}')
+            return random.choice(obj_types)
+        except:
+            raise Exception(f'Could not find object type for verb type {verb_type}')
+
+
+    if noun_kind == 'adv':
+        #print(f"adv series size {len(types.adv_type.str.split(', '))}")
+        #print(types.adv_type.iloc[0])
+
+        adv_types = types.adv_type.iloc[0].split(', ')
+
+
+        try:
+            #print(f'adv size {types.adv_type.size}')
+            return random.choice(adv_types)
+        except:
+            raise Exception(f'Could not find adverbial type for verb type {verb_type}')
+        

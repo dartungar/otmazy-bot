@@ -42,7 +42,7 @@ class PredicateSpice():
             n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'клясться']))[0]
             # TODO: избавиться от необходимости передавать подлежащее
             
-            n = declensify(morph, n, subj, tense=tense)
+            n = declensify(morph, n, subj, tense='past')
             #if n:
             #print(n)
             #print(f"n {n.word}")            
@@ -54,27 +54,33 @@ class PredicateSpice():
 
 # сказуемое
 class Predicate():
-    def __init__(self, words, morph, tense='pres', verb_type=None, noun_type=None, case=None, aspc='impf', context=None):
+    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None):
         
         verbs = words['verb'].fillna(value=0)
+
+        # фильтр раз
+        verbs = verbs[verbs.has_object==has_object]
         
         # можем прямо определить тип сказуемого
         if verb_type:
             self.info = verbs[(verbs.type==verb_type) & (verbs.aspc==aspc)].sample()
-        
         # ...или прямо определить согласование с существительными
-        if noun_type:
+        elif noun_type:
             # тип
             self.info = verbs[(verbs.noun_type==noun_type) & (verbs.aspc==aspc)].sample()
+        # ... или всё-таки выбрать по-честному ;)
+        else:
+            self.info = verbs.sample()
+        
         
         self.parsed = morph.parse(self.info.iloc[0, 0])[0]
         # спайс
         self.word = self.parsed.normal_form
         # TODO: более изящное решение через БД
-        self.case_obj = self.info.iloc[0, 3]
+        self.case_object = self.info.iloc[0, 4]
         self.aspc = aspc
-        self.type = self.info.iloc[0, 5]
-        self.type_apt = self.info.iloc[0, 6]
+        self.type = self.info.iloc[0, 6]
+        self.type_alt = self.info.iloc[0, 7]
 
         if not verb_type and not noun_type:
             self.info = None
@@ -86,10 +92,11 @@ class Predicate():
 class Noun():
     def __init__(self, words, morph, noun_type=None, case=None, context=None):
         if noun_type:
+            self.type = noun_type
             nouns = words['noun'].fillna(value='')
             self.info = nouns[nouns.type==noun_type].sample()
             n = morph.parse(self.info.iloc[0, 0])[0]
-            #print(f'type: {noun_type}, case: {case}')
+            print(f'type: {noun_type}, case: {case}')
             n_case = n.inflect({case})
             if n_case:
                 self.word = n_case.word
