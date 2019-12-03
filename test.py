@@ -34,11 +34,12 @@ def test_constructor(words, morph):
     text = constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
-                        subject_is_myself=random.randint(0, 1), 
+                        subject_is_myself=subjim, 
                         has_predicate_spice=random.randint(0, 1),
+                        to_be=random.randint(0, 1),
                         has_object=random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
-                        has_ending=False if subjim else random.randint(0, 1))
+                        has_ending=random.randint(0, 1))
 
     text = text.replace('  ', ' ').strip().capitalize()
 

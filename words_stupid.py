@@ -28,7 +28,7 @@ class PredicateSpice():
 
         if to_be:
             tobe = morph.parse('быть')[0]
-            tobe = tobe.inflect({tense})
+            tobe = tobe.inflect({tense, '3per'}).word
 
         # мне нужно, тёще придется
         if 'datv' in subj.tag:
@@ -39,15 +39,18 @@ class PredicateSpice():
             self.parsed = morph.parse(self.word)[0]
         # я собираюсь, тёща хочет
         elif 'nomn' in subj.tag:
-            n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'клясться']))[0]
-            # TODO: избавиться от необходимости передавать подлежащее
-            
-            n = declensify(morph, n, subj, tense='past')
-            #if n:
-            #print(n)
-            #print(f"n {n.word}")            
-            self.word = n.word
-            self.parsed = n 
+            if to_be:
+                self.word = tobe
+            else:
+                n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться']))[0]
+                # TODO: избавиться от необходимости передавать подлежащее
+                
+                n = declensify(morph, n, subj, tense='past')
+                #if n:
+                #print(n)
+                #print(f"n {n.word}")            
+                self.word = n.word
+                self.parsed = n 
         else:
             raise Exception('Invalid Case for Predicate Spice!')
         
@@ -70,21 +73,17 @@ class Predicate():
             self.info = verbs[(verbs.noun_type==noun_type) & (verbs.aspc==aspc)].sample()
         # ... или всё-таки выбрать по-честному ;)
         else:
-            self.info = verbs.sample()
+            self.info = verbs[verbs.aspc==aspc].sample()
         
-        
-        self.parsed = morph.parse(self.info.iloc[0, 0])[0]
-        # спайс
-        self.word = self.parsed.normal_form
-        # TODO: более изящное решение через БД
-        self.case_object = self.info.iloc[0, 4]
-        self.aspc = aspc
-        self.type = self.info.iloc[0, 6]
-        self.type_alt = self.info.iloc[0, 7]
 
-        if not verb_type and not noun_type:
-            self.info = None
-            self.word = ''
+        # TODO: более изящное решение через БД
+        self.case_object = self.info.case_object.iloc[0]
+        self.aspc = aspc
+        self.type = self.info.type.iloc[0]
+        self.type_alt = self.info.type_alt.iloc[0]
+
+        self.parsed = morph.parse(self.info.word.iloc[0])[0]
+        self.word = self.parsed.word
 
 
 
@@ -96,12 +95,13 @@ class Noun():
             nouns = words['noun'].fillna(value='')
             self.info = nouns[nouns.type==noun_type].sample()
             n = morph.parse(self.info.iloc[0, 0])[0]
-            print(f'type: {noun_type}, case: {case}')
+            #print(f'type: {noun_type}, case: {case}')
             n_case = n.inflect({case})
             if n_case:
                 self.word = n_case.word
             else:
-                raise Exception(f'Could not inflect case {case} on word {n.word}')
+                self.word = n.word
+                # print('could not inflect case!')
         else:
             self.info = None
             self.word = ''
@@ -149,7 +149,8 @@ class Ending():
     def __init__(self, words, morph, tense='pres', context=None):
         endings = words['ending']
         self.info = endings[(endings.tense==tense)|(endings.tense=='all')].sample()
-        self.word = self.info.iloc[0, 0]
+        self.word = self.info.word.iloc[0]
+        #print(self.word)
         # + помогать
 
         # TODO: Реализовать subject is myself

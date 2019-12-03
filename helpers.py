@@ -85,7 +85,7 @@ def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
 
     else:
         # TODO: более продвинутое присвоение падежей
-        cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt'}
+        cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt', 'person': 'datv'}
         return cases[adverbial_type]        
     raise Exception(f'Could not find Adverbial case for obj {object_type} adv {adverbial_type}')
 
@@ -96,9 +96,9 @@ def get_noun_type(words, verb_type, noun_kind):
     types = types[types.verb_type==verb_type]
 
     if noun_kind == 'obj':
-        #print(types.obj_type.iloc[0])
-        obj_types = types.obj_type.iloc[0].split(', ')
-
+        obj_types = types.obj_type.iloc[0]
+        if obj_types:
+            obj_types = obj_types.split(', ')
 
         try:
             #print(f'obj series size {types.obj_type.size}')
@@ -108,11 +108,9 @@ def get_noun_type(words, verb_type, noun_kind):
 
 
     if noun_kind == 'adv':
-        #print(f"adv series size {len(types.adv_type.str.split(', '))}")
-        #print(types.adv_type.iloc[0])
-
-        adv_types = types.adv_type.iloc[0].split(', ')
-
+        adv_types = types.adv_type.iloc[0]
+        if adv_types:
+            adv_types = adv_types.split(', ')
 
         try:
             #print(f'adv size {types.adv_type.size}')
