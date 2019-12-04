@@ -11,13 +11,13 @@ def declensify(morph, word_parsed, subj, tense='pres', context=None):
         return word
     
     # TODO: сейчас выдает ошибку когда инфлектишь 3per & present tense. нужна более продвинутая функция с учетом perf & imperf
-    if tense == 'pres' and 'anim' in subj.tag:
+    if tense == 'pres' and 'anim' in subj.parsed.tag:
         word = word_parsed.inflect({'3per'})
         if not word:
             raise Exception(f'could not inflect on word {word_parsed.word}')
     else:
-        for grm in ['1per', '2per', '3per', 'sing', 'plur', tense, 'masc', 'femn']:
-            if grm in subj.tag:
+        for grm in [subj.person, subj.plural, tense, 'masc', 'femn']:
+            if grm in subj.parsed.tag:
                 word_modified = word_parsed.inflect({grm})
                 if word_modified:
                     word = word_modified

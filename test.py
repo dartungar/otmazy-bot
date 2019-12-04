@@ -39,7 +39,7 @@ def test_constructor(words, morph):
                         to_be=random.randint(0, 1),
                         has_object=random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
-                        has_ending=random.randint(0, 1))
+                        has_ending=0 if subjim else random.randint(0, 1))
 
     text = text.replace('  ', ' ').strip().capitalize()
 

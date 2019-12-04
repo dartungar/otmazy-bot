@@ -17,6 +17,13 @@ class Subject():
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
         self.word = self.info.iloc[0, 0]
         self.parsed = morph.parse(self.word)[0]
+        self.person = '1per'
+        if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
+            self.person = '3per'
+        self.plural = 'sing'
+        for plur in ['sing', 'plur']:
+            if plur in self.parsed.tag:
+                self.plural = plur
  
 
 # TODO: реворкнуть в выбор из БД PredicateSpice?
@@ -24,28 +31,35 @@ class Subject():
 class PredicateSpice():
     def __init__(self, words, morph, tense='pres', subj=None, to_be=False, context=None):
 
-        subj = morph.parse(subj.word)[0]
+        #subj = morph.parse(subj.word)[0]
+        tobe = morph.parse('быть')[0]
 
-        if to_be:
-            tobe = morph.parse('быть')[0]
-            tobe = tobe.inflect({tense, '3per'}).word
 
-        # мне нужно, тёще придется
-        if 'datv' in subj.tag:
+            #self.word = declensify(morph, tobe, subj, tense='futr').word
+            #print(self.word)
+
+        # мне нужно, мне нужно будет, тёще придется
+        if 'datv' in subj.parsed.tag:
             if to_be:
-                self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe}"
-            if not to_be:
+                self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe.inflect({tense, '3per', subj.plural}).word}"
+            else:
                 self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
-            self.parsed = morph.parse(self.word)[0]
+                self.parsed = morph.parse(self.word)[0]
+
+        # я буду, он будет
+        elif to_be == True:
+            self.word = tobe.inflect({tense, subj.person, subj.plural}).word
+
         # я собираюсь, тёща хочет
-        elif 'nomn' in subj.tag:
+        elif 'nomn' in subj.parsed.tag:
             if to_be:
                 self.word = tobe
             else:
                 n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться']))[0]
                 # TODO: избавиться от необходимости передавать подлежащее
-                
+                #print(n)
                 n = declensify(morph, n, subj, tense='past')
+                #n = n.inflect({'past', subj.person, subj.plural})
                 #if n:
                 #print(n)
                 #print(f"n {n.word}")            
@@ -96,7 +110,11 @@ class Noun():
             self.info = nouns[nouns.type==noun_type].sample()
             n = morph.parse(self.info.iloc[0, 0])[0]
             #print(f'type: {noun_type}, case: {case}')
-            n_case = n.inflect({case})
+            # ёбаный костыль FIXME
+            if len(n.word.split()) < 2:
+                n_case = n.inflect({case})
+            else:
+                n_case = n
             if n_case:
                 self.word = n_case.word
             else:

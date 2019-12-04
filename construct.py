@@ -6,7 +6,7 @@ from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adver
 from helpers import *
 
 
-def constructor(words, morph, tense='pres', context='default', subject_is_myself=True, has_predicate_spice=True, to_be=False, has_object=False, has_adverbial=True, has_beginning=False, has_ending=False):
+def constructor(words, morph, tense='futr', context='default', subject_is_myself=True, has_predicate_spice=True, to_be=False, has_object=False, has_adverbial=True, has_beginning=False, has_ending=False):
     
     # subject
     subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
@@ -15,12 +15,20 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     # TODO: рандом с весом на to_be
     predicate_spice = ''
     pred_aspc = 'impf'
-    if has_predicate_spice or 'datv' in subject.parsed.tag:
+    if (has_predicate_spice or 'datv' in subject.parsed.tag) and not to_be:
         predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=to_be).word
         pred_aspc = 'perf'
-
+    elif has_predicate_spice and to_be:
+        predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=to_be).word
+    elif (tense == 'futr' or tense == 'past') and not predicate_spice:
+        pred_aspc = 'perf'
+    
     # predicate
     predicate = Predicate(words=words, morph=morph, tense=tense, has_object=has_object, aspc=pred_aspc)
+
+    # TODO: переработать блок сказуемого чтобы не было нужды в этой хуйне
+    
+
 
     # object TODO: проверить актуальна ли такая механика
     if predicate.case_object:
@@ -32,12 +40,12 @@ def constructor(words, morph, tense='pres', context='default', subject_is_myself
     # склоняем сказуемое, если нет спайса
     if not predicate_spice:
         if pred_aspc == 'perf':
-            predicate.parsed = declensify(morph, predicate.parsed, subject.parsed, tense=tense)
+            predicate.parsed = declensify(morph, predicate.parsed, subject, tense=tense)
         else:
-            predicate.parsed = declensify(morph, predicate.parsed, subject.parsed)
+            predicate.parsed = declensify(morph, predicate.parsed, subject)
         predicate.word = predicate.parsed.word
 
-    #print(predicate.word)
+    #print(predicate.parsed)
 
     obj = ''
     predlog_obj = ''
