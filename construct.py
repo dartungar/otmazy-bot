@@ -15,11 +15,17 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     # TODO: рандом с весом на to_be
     predicate_spice = ''
     pred_aspc = 'impf'
-    if (has_predicate_spice or 'datv' in subject.parsed.tag) and not to_be:
+    # фиксим несоответствие, если задали кривые вводные параметры
+    if not has_predicate_spice and 'datv' in subject.parsed.tag:
+        has_predicate_spice = True
+    # мне нужно будет ...
+    if has_predicate_spice and to_be:
+        predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=to_be).word
+    # мне нужно ... или я пообещал ...
+    elif (has_predicate_spice or 'datv' in subject.parsed.tag) and not to_be:
         predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=to_be).word
         pred_aspc = 'perf'
-    elif has_predicate_spice and to_be:
-        predicate_spice = PredicateSpice(words=words, morph=morph, tense=tense, subj=subject, to_be=to_be).word
+    # несовершенные глаголы не могут быть в настоящем! оставляем только совершенные
     elif (tense == 'futr' or tense == 'past') and not predicate_spice:
         pred_aspc = 'perf'
     
@@ -36,7 +42,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     else:
         obj_case = 'accs'
 
-
+    #print(tense)
     # склоняем сказуемое, если нет спайса
     if not predicate_spice:
         if pred_aspc == 'perf':

@@ -10,9 +10,34 @@ def declensify(morph, word_parsed, subj, tense='pres', context=None):
     if len(word.word.split()) > 1:
         return word
     
-    # TODO: сейчас выдает ошибку когда инфлектишь 3per & present tense. нужна более продвинутая функция с учетом perf & imperf
     if tense == 'pres' and 'anim' in subj.parsed.tag:
         word = word_parsed.inflect({'3per'})
+        
+        if not word:
+            raise Exception(f'could not inflect on word {word_parsed.word}')
+    else:
+        for grm in [subj.person, subj.plural, tense, 'masc', 'femn']:
+            if grm in subj.parsed.tag or grm==tense:
+                #print(f'word before: {word.word}, tense {tense}')
+                word_modified = word_parsed.inflect({grm})
+                if word_modified:
+                    word = word_modified
+                    #print(tense)
+                    #print(word.word)
+                else:
+                    print(f'could not declensify word {word_parsed.word}')
+                    pass #TODO: логировать в info импотенцию склонятора
+        if tense == 'futr' and ('3per' and '1per') not in subj.parsed.tag:
+            #print('ding')
+            word = word.inflect({'3per'})
+    return word
+
+
+def declensify_predicate(morph, word_parsed, subj, tense='pres', context=None):
+    word = word_parsed
+    if tense == 'pres' and 'anim' in subj.parsed.tag:
+        word = word_parsed.inflect({'3per'})
+        
         if not word:
             raise Exception(f'could not inflect on word {word_parsed.word}')
     else:
@@ -21,12 +46,13 @@ def declensify(morph, word_parsed, subj, tense='pres', context=None):
                 word_modified = word_parsed.inflect({grm})
                 if word_modified:
                     word = word_modified
+                    print(word)
                 else:
                     print(f'could not declensify word {word_parsed.word}')
                     pass #TODO: логировать в info импотенцию склонятора
                     #raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')                    
     #print(f'declensified word {word}')            
-    return word
+    return word  
 
 
 # TODO: склонение целого словосочетания - для beginning & ending чтобы не вылавливать из середины "могу", "могла" итд
