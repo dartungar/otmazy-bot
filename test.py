@@ -28,7 +28,7 @@ def create_random_template():
 
 
 def test_constructor(words, morph):
-    tense = 'futr' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
+    tense = 'past' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
     subjim = random.randint(0, 1)
 
     text = constructor(words=words, 

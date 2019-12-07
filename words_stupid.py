@@ -24,6 +24,11 @@ class Subject():
         for plur in ['sing', 'plur']:
             if plur in self.parsed.tag:
                 self.plural = plur
+        self.gender = 'masc'
+        for gender in ['masc', 'femn', 'neut']:
+            if gender in self.parsed.tag:
+                self.gender = gender
+
  
 
 # TODO: реворкнуть в выбор из БД PredicateSpice?
@@ -34,6 +39,8 @@ class PredicateSpice():
         #subj = morph.parse(subj.word)[0]
         tobe = morph.parse('быть')[0]
 
+        self.word = ''
+
 
             #self.word = declensify(morph, tobe, subj, tense='futr').word
             #print(self.word)
@@ -41,19 +48,27 @@ class PredicateSpice():
         # мне нужно, мне нужно будет, тёще придется
         if 'datv' in subj.parsed.tag:
             if to_be:
-                self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe.inflect({tense, '3per', subj.plural}).word}"
+                if tense == 'futr':
+                    self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe.inflect({tense, '3per', subj.plural}).word}"
+                elif tense == 'past':
+                    self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe.inflect({tense, 'neut'}).word}"
             else:
-                self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
+                if tense == 'futr':
+                    self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
+                elif tense == 'past':
+                    self.word = random.choice(['нужно было', 'надо было', 'необходимо было', 'пришлось', 'давно пора было', 'позарез надо было', 'припекло'])
                 self.parsed = morph.parse(self.word)[0]
 
         # я буду, он будет
-        elif to_be == True:
+        elif to_be == True and tense == 'futr':
             self.word = tobe.inflect({tense, subj.person, subj.plural}).word
+        
 
         # я собираюсь, тёща хочет
         elif 'nomn' in subj.parsed.tag:
             if to_be:
-                self.word = tobe
+                #self.word = tobe.word
+                pass
             else:
                 n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться']))[0]
                 # TODO: избавиться от необходимости передавать подлежащее
@@ -156,11 +171,19 @@ class Predlog():
 class Beginning():
     def __init__(self, words, morph, tense='pres', context=None):
         beginnings = words['beginning']
-        self.info = beginnings.sample()
+        self.info = beginnings[(beginnings.tense==tense)|(beginnings.tense=='all')].sample()
         self.word = self.info.iloc[0, 0]
         if self.info.iloc[0, 1]:
             self.word += ','
-        
+
+
+# разные предложения, добавляемые до или после основного, ради правдоподобности
+class SentenceSpice():
+    def __init__(self, words, morph, tense='pres', type='beginning', context=None):
+        sentences = words['sentences']
+        self.word = sentences[(sentences.tense==tense)&(sentences.type==type)]
+
+
 
 # TODO : ending spice, склоняемый по времени +  помогать
 class Ending():

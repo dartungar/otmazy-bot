@@ -24,7 +24,7 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/start', '/generate']], True)
+keyboard = ReplyKeyboardMarkup([['/start', '/random']], True)
 
 
 def error(update, context):
@@ -44,7 +44,7 @@ def start(update, context):
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
 
-def generate(update, context):
+def random(update, context):
     try:
         text = test_constructor(words=df, morph=morph)
         #text = random.randint(1, 10)

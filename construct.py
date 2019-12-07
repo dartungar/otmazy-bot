@@ -36,7 +36,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     
 
 
-    # object TODO: проверить актуальна ли такая механика
+    # object FIXME: просто ставить accs - даёт баги. исправь
     if predicate.case_object:
         obj_case = predicate.case_object
     else:
@@ -45,7 +45,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     #print(tense)
     # склоняем сказуемое, если нет спайса
     if not predicate_spice:
-        if pred_aspc == 'perf':
+        if pred_aspc == 'perf' or tense == 'past':
             predicate.parsed = declensify(morph, predicate.parsed, subject, tense=tense)
         else:
             predicate.parsed = declensify(morph, predicate.parsed, subject)
