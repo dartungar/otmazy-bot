@@ -178,8 +178,13 @@ class Beginning():
             self.word += ','
 
 
+class BeginningSentence():
+    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None):
+        pass
+
+
 # разные предложения, добавляемые до или после основного, ради правдоподобности
-class SentenceSpice():
+class EndingSentence():
     def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None):
         sentences = words['sentences']
         if custom_word_parsed:
@@ -190,7 +195,7 @@ class SentenceSpice():
             word = custom_word_parsed.inflect({case}).word
             self.word = self.word.replace('<word>', word)
         else:
-            self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)].sample()
+            self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==False)].sample()
             self.word = self.info.sentence.iloc[0]
         self.word = self.word.strip().capitalize()
         #print(self.word)

@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, Ending, SentenceSpice
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, BeginningSentence, EndingSentence
 from helpers import *
 
 
@@ -100,7 +100,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
                 cwp = obj.parsed
             else:
                 cwp = adverbial.parsed
-        end_sentence = SentenceSpice(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp)
+        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp)
         #print(end_sentence.word)
 
     text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv.word if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"

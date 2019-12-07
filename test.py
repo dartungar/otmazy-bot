@@ -6,29 +6,8 @@ from construct import constructor
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
-
-def get_form(word, morph, case):
-    parsed = morph.parse(word)[0]
-    morphed = parsed.inflect({case})[0]
-    return morphed
-
-
-def create_random_template():
-    number = random.randint(1, 4)
-    if number == 1:
-        tmplt = template.Template_1(words=df, morph=morph)
-    if number == 2:
-        tmplt = template.Template_2(words=df, morph=morph)
-    if number == 3:
-        tmplt = template.Template_3(words=df, morph=morph)
-    if number == 4:
-        tmplt = template.Template_4(words=df, morph=morph)
-
-    return (number, tmplt)
-
-
 def test_constructor(words, morph):
-    tense = 'past' # TODO: разобраться почему не работает, cейчас везде прошлое о_О
+    tense = random.choice(['past', 'futr']) # TODO: разобраться почему не работает, cейчас везде прошлое о_О
     subjim = random.randint(0, 1)
 
     text = constructor(words=words, 
@@ -39,7 +18,8 @@ def test_constructor(words, morph):
                         to_be=random.randint(0, 1),
                         has_object=random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
-                        has_ending=0 if subjim else random.randint(0, 1))
+                        has_ending=1#random.randint(0, 1)
+                        )
 
     text = text.replace('  ', ' ').strip().capitalize()
 
