@@ -135,6 +135,7 @@ class Noun():
             else:
                 self.word = n.word
                 # print('could not inflect case!')
+            self.parsed = morph.parse(self.word)[0]
         else:
             self.info = None
             self.word = ''
@@ -179,9 +180,23 @@ class Beginning():
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class SentenceSpice():
-    def __init__(self, words, morph, tense='pres', type='beginning', context=None):
+    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None):
         sentences = words['sentences']
-        self.word = sentences[(sentences.tense==tense)&(sentences.type==type)]
+        if custom_word_parsed:
+            self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
+            self.word = self.info.sentence.iloc[0]
+            case = self.info.word_case.iloc[0]
+            #print(f'custon_word_parsed: {custom_word_parsed}, case {case}')
+            word = custom_word_parsed.inflect({case}).word
+            self.word = self.word.replace('<word>', word)
+        else:
+            self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)].sample()
+            self.word = self.info.sentence.iloc[0]
+        self.word = self.word.strip().capitalize()
+        #print(self.word)
+    
+
+
 
 
 

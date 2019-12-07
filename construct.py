@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, Ending
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, Ending, SentenceSpice
 from helpers import *
 
 
@@ -81,14 +81,29 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
         beginning = Beginning(words=words, morph=morph).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
 
-    # ending
-    ending = ''
-    if has_ending:
-        ending = Ending(words=words, morph=morph, tense=tense).word
-        #ending = declensify_text(morph, ending, subject.parsed, tense, context)  
+    # # ending
+    # ending = ''
+    # if has_ending:
+    #     ending = Ending(words=words, morph=morph, tense=tense).word
+    #     #ending = declensify_text(morph, ending, subject.parsed, tense, context)  
 
+    # новый ending!
+    has_ending_sentence = has_ending # TODO: реворк в параметр функции
+    end_sentence = ''
+    cwp = None
+    if has_ending_sentence:
+        has_cwp = random.randint(0, 1)
+        if has_cwp:
+            if subject.is_myself == False:
+                cwp = subject.parsed
+            elif obj:
+                cwp = obj.parsed
+            else:
+                cwp = adverbial.parsed
+        end_sentence = SentenceSpice(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp)
+        #print(end_sentence.word)
 
-    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv.word if predlog_adv else ''} { adverbial.word if adverbial else ''} {ending if ending else ''}"
+    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv.word if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
 
     # text = ' '.join([beginning,
     #                 subject.word,

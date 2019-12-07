@@ -43,7 +43,17 @@ def test_constructor(words, morph):
 
     text = text.replace('  ', ' ').strip().capitalize()
 
-    return text
+    # костыль поганый. FIXME
+    text = text.split('.')
+    prettified_text = ''
+    for sentence in text:
+        if sentence.strip():
+            sentence = sentence.replace('.', '')
+            sentence = sentence.replace('  ', ' ').strip().capitalize()
+            prettified_text += sentence
+            prettified_text += '. '
+
+    return prettified_text
 
 
 if __name__ == '__main__':
