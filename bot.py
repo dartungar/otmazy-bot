@@ -35,7 +35,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otmazy Bot v 0.2.1 alpha
+    reply_text = f''' Otmazy Bot v 0.3 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
@@ -44,7 +44,7 @@ def start(update, context):
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
 
-def random(update, context):
+def generate_random(update, context):
     try:
         text = test_constructor(words=df, morph=morph)
         #text = random.randint(1, 10)
@@ -85,7 +85,7 @@ def main():
     start_handler = CommandHandler('start', start)
     dp.add_handler(start_handler)
 
-    generate_v0_handler = CommandHandler('generate', generate)
+    generate_v0_handler = CommandHandler('random', generate_random)
     dp.add_handler(generate_v0_handler)
 
     # check_client_handler = CommandHandler('check_client', check_client)
