@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, BeginningSentence, EndingSentence
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Predlog, Beginning, EndingSentence
 from helpers import *
 
 
@@ -58,8 +58,10 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     if has_object:
         obj_type = get_noun_type(words=words, verb_type=predicate.type, noun_kind='obj')
         obj = Object(words=words, morph=morph, noun_type=obj_type, case=obj_case)
+        #print(obj.word)
 
-        predlog_obj = Predlog(words=words, morph=morph, predlog_type=obj.type, case=obj_case)
+        predlog_obj = Predlog(words=words, morph=morph, word=obj)
+
 
 
     if has_adverbial:
@@ -69,11 +71,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
         adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
 
         # predlog
-        # TODO: предлоги разве только в одном месте?
-        # пока обойдемся предлогом к обстоятельству
-        # predlog_type = None
-        # predlog_case = None
-        predlog_adv = Predlog(words=words, morph=morph, predlog_type=adv_type, case=adv_case)
+        predlog_adv = Predlog(words=words, morph=morph, word=adverbial)
 
     # beginning
     beginning = ''

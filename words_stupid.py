@@ -119,8 +119,9 @@ class Predicate():
 # класс-родитель для всех существительных
 class Noun():
     def __init__(self, words, morph, noun_type=None, case=None, context=None):
+        self.case = case
+        self.type = noun_type
         if noun_type:
-            self.type = noun_type
             nouns = words['noun'].fillna(value='')
             self.info = nouns[nouns.type==noun_type].sample()
             n = morph.parse(self.info.iloc[0, 0])[0]
@@ -139,12 +140,16 @@ class Noun():
         else:
             self.info = None
             self.word = ''
+            self.parsed = ''
 
 
 
 # склоняем по умолчанию или с obj_case от predicate
 class Object(Noun):
-    pass
+    def __init__(self, words, morph, noun_type=None, case=None, context=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context)
+        self.member = 'object'
+    
         
         
 
@@ -152,16 +157,19 @@ class Object(Noun):
 # TODO SHIT GETS REAL
 # or not. можно сделать тупую функцию, а всю логику добавить в конструктор
 class Adverbial(Noun):
-    pass
-
+    def __init__(self, words, morph, noun_type=None, case=None, context=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context)
+        self.member = 'adverbial'
         
 
 
 class Predlog():
-    def __init__(self, words, morph, predlog_type=None, case=None, context=None):
-        if predlog_type:
+    def __init__(self, words, morph, word=None, context=None):
+        if word.case == 'accs' and word.type == 'event' and word.member == 'object':
+            self.word = ''
+        elif word.type:
             predlogs = words['predlog'].fillna(value='')
-            self.info = predlogs[(predlogs.noun_type==predlog_type) & (predlogs.noun_case==case)].sample()
+            self.info = predlogs[(predlogs.noun_type==word.type) & (predlogs.noun_case==word.case)].sample()
             self.word = self.info.iloc[0, 0]
         else:
             self.info = None
@@ -178,9 +186,18 @@ class Beginning():
             self.word += ','
 
 
-class BeginningSentence():
-    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None):
-        pass
+class Greeting():
+    def __init__(self, words, morph, tense='pres', type='beginning', context=None):
+        self.word = random.choice([
+            'Привет',
+            'Приветствую',
+            'Салам',
+            'Хай',
+            'Здравствуй',
+            'Здравствуйте',
+            '',
+            '',
+        ])
 
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
