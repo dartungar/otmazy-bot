@@ -3,6 +3,7 @@ import pymorphy2
 import random
 import template
 from construct import constructor
+from helpers import prettify_text, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
@@ -21,17 +22,9 @@ def test_constructor(words, morph):
                         has_ending=random.randint(0, 1)
                         )
 
-    text = text.replace('  ', ' ').strip().capitalize()
 
     # костыль поганый. FIXME
-    text = text.split('.')
-    prettified_text = ''
-    for sentence in text:
-        if sentence.strip():
-            sentence = sentence.replace('.', '')
-            sentence = sentence.replace('  ', ' ').strip().capitalize()
-            prettified_text += sentence
-            prettified_text += '. '
+    prettified_text = prettify_text(morph, text)
 
     return prettified_text
 

@@ -91,8 +91,13 @@ class Predicate():
         verbs = words['verb'].fillna(value=0)
 
         # фильтр раз
-        verbs = verbs[verbs.has_object==has_object]
+        #verbs = verbs[verbs.has_object==has_object]  #по факту у глаголов типа Travel никогда не объекта, если не считать "путешествие с тёщей на Кавказ" объектом тёщу
         
+        if has_object:
+            verbs = verbs[verbs.type!='travel'] 
+        else:
+            verbs = verbs[verbs.type=='travel']
+
         # можем прямо определить тип сказуемого
         if verb_type:
             self.info = verbs[(verbs.type==verb_type) & (verbs.aspc==aspc)].sample()
@@ -137,6 +142,7 @@ class Noun():
                 self.word = n.word
                 # print('could not inflect case!')
             self.parsed = morph.parse(self.word)[0]
+
         else:
             self.info = None
             self.word = ''
@@ -167,6 +173,10 @@ class Predlog():
     def __init__(self, words, morph, word=None, context=None):
         if word.case == 'accs' and word.type == 'event' and word.member == 'object':
             self.word = ''
+        # elif word.case == 'accs':
+        #     if word.type in ['event', 'project']:
+        #         if word.member == 'adverbial':
+        #             self.word = 'для'
         elif word.type:
             predlogs = words['predlog'].fillna(value='')
             self.info = predlogs[(predlogs.noun_type==word.type) & (predlogs.noun_case==word.case)].sample()
