@@ -6,10 +6,10 @@ from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adver
 from helpers import *
 
 
-def constructor(words, morph, tense='futr', context='default', subject_is_myself=True, has_predicate_spice=True, to_be=False, has_object=False, has_adverbial=True, has_beginning=False, has_ending=False):
+def constructor(words, morph, tense='futr', context='default', subject_is_myself=True, subj_datv=False, has_predicate_spice=True, to_be=False, has_object=False, has_adverbial=True, has_beginning=False, has_ending=False):
     
     # subject
-    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself)
+    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv)
 
     # predicate spice
     # TODO: рандом с весом на to_be

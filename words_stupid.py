@@ -5,7 +5,7 @@ from helpers import declensify
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, subject_is_myself=True, context=None):
+    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
@@ -17,6 +17,9 @@ class Subject():
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
         self.word = self.info.iloc[0, 0]
         self.parsed = morph.parse(self.word)[0]
+        if datv:
+            self.word = self.parsed.inflect({'datv'}).word
+            self.parsed = morph.parse(self.word)[0]
         self.person = '1per'
         if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
             self.person = '3per'
@@ -28,7 +31,7 @@ class Subject():
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
-
+        
  
 
 # TODO: реворкнуть в выбор из БД PredicateSpice?

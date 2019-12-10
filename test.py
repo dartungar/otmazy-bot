@@ -15,6 +15,7 @@ def test_constructor(words, morph):
                         morph=morph, 
                         tense=tense, 
                         subject_is_myself=subjim, 
+                        subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
                         has_object=random.randint(0, 1),

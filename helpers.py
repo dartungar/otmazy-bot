@@ -177,3 +177,14 @@ def needs_capitalizing(morph, word):
         if grm in word_parsed.tag:
             return True
     return False
+
+
+def get_context(context):
+    if context == 'family':
+        pass
+    elif context == 'personal':
+        pass
+    elif context == 'leisure':
+        pass
+    elif context == 'work':
+        pass 
