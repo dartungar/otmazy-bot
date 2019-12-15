@@ -20,7 +20,8 @@ def test_constructor(words, morph):
                         to_be=random.randint(0, 1),
                         #has_object=0,#random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
-                        has_ending=random.randint(0, 1)
+                        has_ending=random.randint(0, 1),
+                        seriousness=3
                         )
 
 

@@ -5,13 +5,16 @@ from helpers import declensify
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None):
+    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None, seriousness=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
         # возможно это уже совсем другой шаблон
 
         subjects = words['subj'].fillna(value=0)
+
+        if seriousness:
+            subjects = subjects[subjects.seriousness>=seriousness]
 
         self.is_myself = subject_is_myself
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
@@ -89,13 +92,15 @@ class PredicateSpice():
 
 # сказуемое
 class Predicate():
-    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None):
+    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None, seriousness=None):
         
         verbs = words['verb'].fillna(value=0)
 
         # фильтр раз
-        #verbs = verbs[verbs.has_object==has_object]  #по факту у глаголов типа Travel никогда не объекта, если не считать "путешествие с тёщей на Кавказ" объектом тёщу
-        
+        if seriousness:
+            verbs = verbs[verbs.seriousness>=seriousness]
+
+        # фильтр два
         if has_object:
             verbs = verbs[(verbs.type!='travel')&(verbs.type!='exist')] 
         else:
@@ -126,19 +131,26 @@ class Predicate():
 
 # класс-родитель для всех существительных
 class Noun():
-    def __init__(self, words, morph, noun_type=None, case=None, context=None):
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
         self.case = case
         self.type = noun_type
         if noun_type:
             nouns = words['noun'].fillna(value='')
-            self.info = nouns[nouns.type==noun_type].sample()
+            
+            if seriousness:
+                self.info = nouns[(nouns.type==noun_type)&(nouns.seriousness>=seriousness)].sample()
+            else:
+                self.info = nouns[nouns.type==noun_type].sample()   
+
             n = morph.parse(self.info.iloc[0, 0])[0]
             #print(f'type: {noun_type}, case: {case}')
+
             # ёбаный костыль FIXME
             if len(n.word.split()) < 2:
                 n_case = n.inflect({case})
             else:
                 n_case = n
+
             if n_case:
                 self.word = n_case.word
             else:
@@ -155,8 +167,8 @@ class Noun():
 
 # склоняем по умолчанию или с obj_case от predicate
 class Object(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context)
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, seriousness=seriousness)
         self.member = 'object'
     
         
@@ -166,32 +178,32 @@ class Object(Noun):
 # TODO SHIT GETS REAL
 # or not. можно сделать тупую функцию, а всю логику добавить в конструктор
 class Adverbial(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context)
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, seriousness=seriousness)
         self.member = 'adverbial'
         
 
 
-class Predlog():
-    def __init__(self, words, morph, word=None, context=None):
-        if word.case == 'accs' and word.type == 'event' and word.member == 'object':
-            self.word = ''
-        # elif word.case == 'accs':
-        #     if word.type in ['event', 'project']:
-        #         if word.member == 'adverbial':
-        #             self.word = 'для'
-        elif word.type:
-            predlogs = words['predlog'].fillna(value='')
-            self.info = predlogs[(predlogs.noun_type==word.type) & (predlogs.noun_case==word.case)].sample()
-            self.word = self.info.iloc[0, 0]
-        else:
-            self.info = None
-            self.word = ''        
+# class Predlog():
+#     def __init__(self, words, morph, word=None, context=None):
+#         if word.case == 'accs' and word.type == 'event' and word.member == 'object':
+#             self.word = ''
+#         # elif word.case == 'accs':
+#         #     if word.type in ['event', 'project']:
+#         #         if word.member == 'adverbial':
+#         #             self.word = 'для'
+#         elif word.type:
+#             predlogs = words['predlog'].fillna(value='')
+#             self.info = predlogs[(predlogs.noun_type==word.type) & (predlogs.noun_case==word.case)].sample()
+#             self.word = self.info.iloc[0, 0]
+#         else:
+#             self.info = None
+#             self.word = ''        
         
 
 
 class Beginning():
-    def __init__(self, words, morph, tense='pres', context=None):
+    def __init__(self, words, morph, tense='pres', context=None, seriousness=None):
         beginnings = words['beginning']
         self.info = beginnings[(beginnings.tense==tense)|(beginnings.tense=='all')].sample()
         self.word = self.info.iloc[0, 0]
@@ -215,8 +227,12 @@ class Greeting():
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class EndingSentence():
-    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None):
+    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None, seriousness=None):
         sentences = words['sentences']
+
+        if seriousness:
+            sentences = sentences[sentences.seriousness>=seriousness]
+
         if custom_word_parsed:
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
             self.word = self.info.sentence.iloc[0]
@@ -235,16 +251,16 @@ class EndingSentence():
 
 
 
-# TODO : ending spice, склоняемый по времени +  помогать
-class Ending():
-    def __init__(self, words, morph, tense='pres', context=None):
-        endings = words['ending']
-        self.info = endings[(endings.tense==tense)|(endings.tense=='all')].sample()
-        self.word = self.info.word.iloc[0]
-        #print(self.word)
-        # + помогать
+# # TODO : ending spice, склоняемый по времени +  помогать
+# class Ending():
+#     def __init__(self, words, morph, tense='pres', context=None):
+#         endings = words['ending']
+#         self.info = endings[(endings.tense==tense)|(endings.tense=='all')].sample()
+#         self.word = self.info.word.iloc[0]
+#         #print(self.word)
+#         # + помогать
 
-        # TODO: Реализовать subject is myself
-        #if not subject.is_myself:
-        #     pass
+#         # TODO: Реализовать subject is myself
+#         #if not subject.is_myself:
+#         #     pass
         
