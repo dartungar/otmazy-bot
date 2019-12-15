@@ -64,90 +64,7 @@ def declensify_text(morph, text, subj, tense, context):
     return text_declensified
 
 
-
-def get_predicate_noun_type(object_type=None):
-    if object_type:
-        noun_type = object_type
-    else:
-        # TODO: выбор из словаря или что-то такое же изящное
-        noun_type = random.choice(['place'])
-    return noun_type
-
-
-# old func
-def get_adverbial_type(object_type=None, predicate_type=None, predicate_noun_type=None):
-    # TODO: переделать из той залупы в таблицу соответствий object_type <-> adv_type
-    # тогда и функция не нужна будет
-    # TODO: реализовать применение verb_type
-    if object_type:
-        if object_type == 'person':
-            return random.choice(['place', 'place_open', 'event', 'person'])
-        if object_type == 'thing':
-            return random.choice(['place', 'place_open', 'event', 'person'])
-        if object_type == 'project':
-            return random.choice(['place', 'place_open', 'event', 'person'])
-        else:
-            raise Exception(f'Could not find Adverbial type for Object type {object_type}')
-    else:
-        return predicate_noun_type
-
-
-# old func
-def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
-    # TODO: переделать в таблицу соответствий!
-    if adverbial_type == 'person':
-        if object_type == 'person':
-            return 'datv'
-        if object_type == 'thing':
-            return 'gent'
-        if object_type == 'project':
-            return 'gent'
-            #return random.choice(['gent', 'ablt'])
-        if not object_type:
-            return 'ablt'
-    
-    if not object_type:
-        if adverbial_type == 'person':
-            return 'datv'
-        if adverbial_type in ['place', 'place_open', 'event', 'project']: #FIXME: почему проект то?
-            return 'accs'
-
-    else:
-        # TODO: более продвинутое присвоение падежей
-        cases = {'thing': 'ablt', 'event': 'accs', 'place': 'accs', 'place_open': 'accs', 'project': 'ablt', 'person': 'datv'}
-        return cases[adverbial_type]        
-    raise Exception(f'Could not find Adverbial case for obj {object_type} adv {adverbial_type}')
-
-
-
-def get_noun_type(words, verb_type, noun_kind):
-    types = words['types']
-    types = types[types.verb_type==verb_type]
-
-    if noun_kind == 'obj':
-        obj_types = types.obj_type.iloc[0]
-        if obj_types:
-            obj_types = obj_types.split(', ')
-
-        try:
-            #print(f'obj series size {types.obj_type.size}')
-            return random.choice(obj_types)
-        except:
-            raise Exception(f'Could not find object type for verb type {verb_type}')
-
-
-    if noun_kind == 'adv':
-        adv_types = types.adv_type.iloc[0]
-        if adv_types:
-            adv_types = adv_types.split(', ')
-
-        try:
-            #print(f'adv size {types.adv_type.size}')
-            return random.choice(adv_types)
-        except:
-            raise Exception(f'Could not find adverbial type for verb type {verb_type}')
-        
-
+# финальный марафет для сгенерированного текста
 def prettify_text(morph, text):
     text = text.split('.')
     prettified_text = ''
@@ -183,18 +100,10 @@ def needs_capitalizing(morph, word):
     return False
 
 
-def get_context(context):
-    if context == 'family':
-        pass
-    elif context == 'personal':
-        pass
-    elif context == 'leisure':
-        pass
-    elif context == 'work':
-        pass 
-
-
+# правила для подбора существительных и предлогов на основе сказуемого
 def get_rules(words, predicate):
     rules = words['rules']
     rules = rules[rules.verb_type==predicate.type].sample()
     return rules
+        
+

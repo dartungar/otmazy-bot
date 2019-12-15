@@ -101,15 +101,5 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
 
     text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
 
-    # text = ' '.join([beginning,
-    #                 subject.word,
-    #                 predicate_spice,
-    #                 predicate.word,
-    #                 predlog_obj.word if predlog_obj else '',
-    #                 obj.word if obj else '',
-    #                 predlog_adv.word if predlog_adv else '',
-    #                 adverbial.word if adverbial else '',
-    #                 ending if ending else ''])
-
     return text
 
