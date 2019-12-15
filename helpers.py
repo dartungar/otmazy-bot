@@ -103,6 +103,9 @@ def get_adverbial_case(object_type, adverbial_type, predicate_noun_type):
         if object_type == 'project':
             return 'gent'
             #return random.choice(['gent', 'ablt'])
+        if not object_type:
+            return 'ablt'
+    
     if not object_type:
         if adverbial_type == 'person':
             return 'datv'
@@ -170,6 +173,7 @@ def prettify_text(morph, text):
     
     return prettified_text
 
+
 # капитализируем имена собственные
 def needs_capitalizing(morph, word):
     word_parsed = morph.parse(word)[0]
@@ -188,3 +192,9 @@ def get_context(context):
         pass
     elif context == 'work':
         pass 
+
+
+def get_rules(words, predicate):
+    rules = words['rules']
+    rules = rules[rules.verb_type==predicate.type].sample()
+    return rules

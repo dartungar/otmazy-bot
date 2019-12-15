@@ -97,9 +97,9 @@ class Predicate():
         #verbs = verbs[verbs.has_object==has_object]  #по факту у глаголов типа Travel никогда не объекта, если не считать "путешествие с тёщей на Кавказ" объектом тёщу
         
         if has_object:
-            verbs = verbs[verbs.type!='travel'] 
+            verbs = verbs[(verbs.type!='travel')&(verbs.type!='exist')] 
         else:
-            verbs = verbs[verbs.type=='travel']
+            verbs = verbs[(verbs.type=='travel')|(verbs.type=='exist')]
 
         # можем прямо определить тип сказуемого
         if verb_type:

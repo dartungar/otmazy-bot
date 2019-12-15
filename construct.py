@@ -33,14 +33,14 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
     predicate = Predicate(words=words, morph=morph, tense=tense, has_object=has_object, aspc=pred_aspc)
 
     # TODO: переработать блок сказуемого чтобы не было нужды в этой хуйне
-    
+    rules = get_rules(words, predicate)
 
 
     # object FIXME: просто ставить accs - даёт баги. исправь
-    if predicate.case_object:
-        obj_case = predicate.case_object
-    else:
-        obj_case = 'accs'
+    # if predicate.case_object:
+    #     obj_case = predicate.case_object
+    # else:
+    #     obj_case = 'accs'
 
     #print(tense)
     # склоняем сказуемое, если нет спайса
@@ -55,23 +55,21 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
 
     obj = ''
     predlog_obj = ''
-    if has_object:
-        obj_type = get_noun_type(words=words, verb_type=predicate.type, noun_kind='obj')
-        obj = Object(words=words, morph=morph, noun_type=obj_type, case=obj_case)
+    if rules.obj_type.iloc[0]:
+        obj = Object(words=words, morph=morph, noun_type=rules.obj_type.iloc[0], case=rules.obj_case.iloc[0])
         #print(obj.word)
 
-        predlog_obj = Predlog(words=words, morph=morph, word=obj)
+        predlog_obj = rules.predlog_obj.iloc[0]
 
 
-
+    # TODO: разобраться, что влияет на наличие обстоятельства и как я хочу этим управлять
     if has_adverbial:
         # adverbial
-        adv_type = get_noun_type(words=words, verb_type=predicate.type, noun_kind='adv')
-        adv_case = get_adverbial_case(object_type=obj.type if has_object else None, adverbial_type=adv_type, predicate_noun_type=obj_type if has_object else None)
-        adverbial = Adverbial(words=words, morph=morph, noun_type=adv_type, case=adv_case)
+        adverbial = Adverbial(words=words, morph=morph, noun_type=rules.adv_type.iloc[0], case=rules.adv_case.iloc[0])
 
         # predlog
-        predlog_adv = Predlog(words=words, morph=morph, word=adverbial)
+        predlog_adv = rules.predlog_adv.iloc[0]
+
 
     # beginning
     beginning = ''
@@ -101,7 +99,7 @@ def constructor(words, morph, tense='futr', context='default', subject_is_myself
         end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp)
         #print(end_sentence.word)
 
-    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj.word if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv.word if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
+    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
 
     # text = ' '.join([beginning,
     #                 subject.word,

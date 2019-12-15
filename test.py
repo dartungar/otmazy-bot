@@ -18,7 +18,7 @@ def test_constructor(words, morph):
                         subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
-                        has_object=random.randint(0, 1),
+                        #has_object=0,#random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
                         has_ending=random.randint(0, 1)
                         )
