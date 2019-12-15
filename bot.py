@@ -35,7 +35,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otmazy Bot v 0.5.0 aplha
+    reply_text = f''' Otmazy Bot v 0.5.0 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
