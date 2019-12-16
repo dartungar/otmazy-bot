@@ -7,8 +7,8 @@ from helpers import prettify_text, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
-def test_constructor(words, morph):
-    tense = random.choice(['past', 'futr']) # TODO: разобраться почему не работает, cейчас везде прошлое о_О
+def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_seriousness=None):
+    tense = random.choice(['past', 'futr']) 
     subjim = random.randint(0, 1)
 
     text = constructor(words=words, 
@@ -21,7 +21,8 @@ def test_constructor(words, morph):
                         #has_object=0,#random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
                         has_ending=random.randint(0, 1),
-                        seriousness=3
+                        min_seriousness=min_seriousness,
+                        max_seriousness=max_seriousness
                         )
 
 

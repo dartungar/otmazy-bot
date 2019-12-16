@@ -15,10 +15,11 @@ def constructor(words, morph, tense='futr', context='default',
                 has_adverbial=True, 
                 has_beginning=False, 
                 has_ending=False,
-                seriousness=None):
+                min_seriousness=None,
+                max_seriousness=None):
     
     # subject
-    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, seriousness=seriousness)
+    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, min_seriousness=min_seriousness)
 
     # predicate spice
     # TODO: рандом с весом на to_be
@@ -39,7 +40,7 @@ def constructor(words, morph, tense='futr', context='default',
         pred_aspc = 'perf'
     
     # predicate
-    predicate = Predicate(words=words, morph=morph, tense=tense, has_object=has_object, aspc=pred_aspc, seriousness=seriousness)
+    predicate = Predicate(words=words, morph=morph, tense=tense, has_object=has_object, aspc=pred_aspc, min_seriousness=min_seriousness)
 
     # TODO: переработать блок сказуемого чтобы не было нужды в этой хуйне
     rules = get_rules(words, predicate)
@@ -65,7 +66,7 @@ def constructor(words, morph, tense='futr', context='default',
     obj = ''
     predlog_obj = ''
     if rules.obj_type.iloc[0]:
-        obj = Object(words=words, morph=morph, noun_type=rules.obj_type.iloc[0], case=rules.obj_case.iloc[0], seriousness=seriousness)
+        obj = Object(words=words, morph=morph, noun_type=rules.obj_type.iloc[0], case=rules.obj_case.iloc[0], min_seriousness=min_seriousness)
         #print(obj.word)
 
         predlog_obj = rules.predlog_obj.iloc[0]
@@ -74,7 +75,7 @@ def constructor(words, morph, tense='futr', context='default',
     # TODO: разобраться, что влияет на наличие обстоятельства и как я хочу этим управлять
     if has_adverbial:
         # adverbial
-        adverbial = Adverbial(words=words, morph=morph, noun_type=rules.adv_type.iloc[0], case=rules.adv_case.iloc[0], seriousness=seriousness)
+        adverbial = Adverbial(words=words, morph=morph, noun_type=rules.adv_type.iloc[0], case=rules.adv_case.iloc[0], min_seriousness=min_seriousness)
 
         # predlog
         predlog_adv = rules.predlog_adv.iloc[0]
@@ -100,7 +101,7 @@ def constructor(words, morph, tense='futr', context='default',
                 cwp = obj.parsed
             else:
                 cwp = adverbial.parsed
-        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, seriousness=seriousness)
+        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness)
         #print(end_sentence.word)
 
     text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"

@@ -24,7 +24,7 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/start', '/random']], True)
+keyboard = ReplyKeyboardMarkup([['/start', '/random'], ['/serious', '/not_serious']], True)
 
 
 def error(update, context):
@@ -47,60 +47,57 @@ def start(update, context):
 def generate_random(update, context):
     try:
         text = test_constructor(words=df, morph=morph)
-        #text = random.randint(1, 10)
         logger.info('generated text')
     except:
         text = 'whoops'
         logger.warning('failed to generate text')
+    update.message.reply_text(text, reply_markup=keyboard)
+
+
+def generate_serious(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, min_seriousness=3)
+        #text = random.randint(1, 10)
+        logger.info('generated serious text')
+    except:
+        text = 'whoops'
+        logger.warning('failed to generate serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)
 
 
+def generate_not_serious(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, max_seriousness=3)
+        #text = random.randint(1, 10)
+        logger.info('generated serious text')
+    except:
+        text = 'whoops'
+        logger.warning('failed to generate serious text')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=keyboard)
+
+
+
 def main():
 
-
-
     updater = Updater(BOT_TOKEN, use_context=True)
-
     dp = updater.dispatcher
 
-    # convhandler = ConversationHandler(
-    #     entry_points=[
-    #                 CommandHandler('start', start),
-    #                 CommandHandler('отмазка', ask_notion_api_key),
-    #                 ],
-
-    #     states={
-    #         TYPING_NOTION_API_KEY: [MessageHandler(Filters.text, set_notion_api_key)],
-    #         TYPING_NOTION_PAGE_ADDRESS: [MessageHandler(Filters.text, set_page_address)],
-    #     },
-
-    #     fallbacks=[CommandHandler('done', done)],
-    #     name='my_conversation',
-    #     persistent=False
-    # )
-
-    # dp.add_handler(convhandler)
-
+    # handlers
     start_handler = CommandHandler('start', start)
     dp.add_handler(start_handler)
 
     generate_v0_handler = CommandHandler('random', generate_random)
     dp.add_handler(generate_v0_handler)
 
-    # check_client_handler = CommandHandler('check_client', check_client)
-    # dp.add_handler(check_client_handler)
-
-    # check_page_handler = CommandHandler('check_page', check_page)
-    # dp.add_handler(check_page_handler)
-
-    # send_text_to_notion_handler = MessageHandler(Filters.text, send_text_to_notion)
-    # dp.add_handler(send_text_to_notion_handler)
+    generate_serious_handler = CommandHandler('serious', generate_serious)
+    dp.add_handler(generate_serious_handler)
 
     dp.add_error_handler(error)
 
-    updater.start_polling()
 
+    updater.start_polling()
     updater.idle()
 
 

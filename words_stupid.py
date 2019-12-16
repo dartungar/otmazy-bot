@@ -5,7 +5,7 @@ from helpers import declensify
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None, seriousness=None):
+    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None, min_seriousness=None, max_seriousness=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
@@ -13,8 +13,10 @@ class Subject():
 
         subjects = words['subj'].fillna(value=0)
 
-        if seriousness:
-            subjects = subjects[subjects.seriousness>=seriousness]
+        if min_seriousness:
+            subjects = subjects[subjects.seriousness>=min_seriousness]
+        if max_seriousness:
+            subjects = subjects[subjects.seriousness<=max_seriousness]
 
         self.is_myself = subject_is_myself
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
@@ -46,10 +48,6 @@ class PredicateSpice():
         tobe = morph.parse('быть')[0]
 
         self.word = ''
-
-
-            #self.word = declensify(morph, tobe, subj, tense='futr').word
-            #print(self.word)
 
         # мне нужно, мне нужно будет, тёще придется
         if 'datv' in subj.parsed.tag:
@@ -92,13 +90,16 @@ class PredicateSpice():
 
 # сказуемое
 class Predicate():
-    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None, seriousness=None):
+    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None, min_seriousness=None, max_seriousness=None):
         
         verbs = words['verb'].fillna(value=0)
 
         # фильтр раз
-        if seriousness:
-            verbs = verbs[verbs.seriousness>=seriousness]
+
+        if min_seriousness:
+            verbs = verbs[verbs.seriousness>=min_seriousness]
+        if max_seriousness:
+            verbs = verbs[verbs.seriousness<=max_seriousness]
 
         # фильтр два
         if has_object:
@@ -131,16 +132,18 @@ class Predicate():
 
 # класс-родитель для всех существительных
 class Noun():
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
         self.case = case
         self.type = noun_type
         if noun_type:
             nouns = words['noun'].fillna(value='')
             
-            if seriousness:
-                self.info = nouns[(nouns.type==noun_type)&(nouns.seriousness>=seriousness)].sample()
-            else:
-                self.info = nouns[nouns.type==noun_type].sample()   
+            if min_seriousness:
+                nouns = nouns[nouns.seriousness>=min_seriousness]
+            if max_seriousness:
+                nouns = nouns[nouns.seriousness<=max_seriousness]
+            
+            self.info = nouns[nouns.type==noun_type].sample()   
 
             n = morph.parse(self.info.iloc[0, 0])[0]
             #print(f'type: {noun_type}, case: {case}')
@@ -167,8 +170,8 @@ class Noun():
 
 # склоняем по умолчанию или с obj_case от predicate
 class Object(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, seriousness=seriousness)
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         self.member = 'object'
     
         
@@ -178,8 +181,8 @@ class Object(Noun):
 # TODO SHIT GETS REAL
 # or not. можно сделать тупую функцию, а всю логику добавить в конструктор
 class Adverbial(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, seriousness=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, seriousness=seriousness)
+    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
+        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         self.member = 'adverbial'
         
 
@@ -203,7 +206,7 @@ class Adverbial(Noun):
 
 
 class Beginning():
-    def __init__(self, words, morph, tense='pres', context=None, seriousness=None):
+    def __init__(self, words, morph, tense='pres', context=None, min_seriousness=None, max_seriousness=None):
         beginnings = words['beginning']
         self.info = beginnings[(beginnings.tense==tense)|(beginnings.tense=='all')].sample()
         self.word = self.info.iloc[0, 0]
@@ -227,11 +230,14 @@ class Greeting():
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class EndingSentence():
-    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None, seriousness=None):
+    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None, min_seriousness=None, max_seriousness=None):
         sentences = words['sentences']
 
-        if seriousness:
-            sentences = sentences[sentences.seriousness>=seriousness]
+        if min_seriousness:
+            sentences = sentences[sentences.seriousness>=min_seriousness]
+        if max_seriousness:
+            sentences = sentences[sentences.seriousness<=max_seriousness]
+
 
         if custom_word_parsed:
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
@@ -246,21 +252,3 @@ class EndingSentence():
         self.word = self.word.strip().capitalize()
         #print(self.word)
     
-
-
-
-
-
-# # TODO : ending spice, склоняемый по времени +  помогать
-# class Ending():
-#     def __init__(self, words, morph, tense='pres', context=None):
-#         endings = words['ending']
-#         self.info = endings[(endings.tense==tense)|(endings.tense=='all')].sample()
-#         self.word = self.info.word.iloc[0]
-#         #print(self.word)
-#         # + помогать
-
-#         # TODO: Реализовать subject is myself
-#         #if not subject.is_myself:
-#         #     pass
-        
