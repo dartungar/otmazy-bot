@@ -24,7 +24,7 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/start', '/help'], ['/serious', '/not_serious', '/random']], True)
+keyboard = ReplyKeyboardMarkup([['/serious', '/not_serious', '/random'], ['/start', '/help']], True)
 
 
 def error(update, context):
@@ -60,7 +60,7 @@ def generate_random(update, context):
         text = test_constructor(words=df, morph=morph)
         logger.info('generated text')
     except:
-        text = 'whoops'
+        text = '¯_(ツ)_/¯'
         logger.warning('failed to generate text')
     update.message.reply_text(text, reply_markup=keyboard)
 
@@ -71,7 +71,7 @@ def generate_serious(update, context):
         #text = random.randint(1, 10)
         logger.info('generated serious text')
     except:
-        text = 'whoops'
+        text = '¯_(ツ)_/¯'
         logger.warning('failed to generate serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)
@@ -83,7 +83,7 @@ def generate_not_serious(update, context):
         #text = random.randint(1, 10)
         logger.info('generated not serious text')
     except:
-        text = 'whoops'
+        text = '¯_(ツ)_/¯'
         logger.warning('failed to generate not serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)
