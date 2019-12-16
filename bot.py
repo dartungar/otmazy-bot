@@ -81,10 +81,10 @@ def generate_not_serious(update, context):
     try:
         text = test_constructor(words=df, morph=morph, max_seriousness=3)
         #text = random.randint(1, 10)
-        logger.info('generated serious text')
+        logger.info('generated not serious text')
     except:
         text = 'whoops'
-        logger.warning('failed to generate serious text')
+        logger.warning('failed to generate not serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)
 
