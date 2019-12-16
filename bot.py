@@ -35,7 +35,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otmazy Bot v 0.6.0 alpha
+    reply_text = f''' Otmazy Bot v 0.6.2 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
@@ -48,9 +48,9 @@ def start(update, context):
 def show_help(update, context):
     reply_text = f''' 
     /help - помощь по командам
-    /random - случайная отмазка
-    /serious - (относительно) серьезная отмазка
-    /not_serious - несерьезная отмазка
+        /random - случайная отмазка
+        /serious - (относительно) серьезная отмазка
+        /not_serious - несерьезная отмазка
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
 
@@ -60,7 +60,7 @@ def generate_random(update, context):
         text = test_constructor(words=df, morph=morph)
         logger.info('generated text')
     except:
-        text = '¯_(ツ)_/¯'
+        text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text')
     update.message.reply_text(text, reply_markup=keyboard)
 
@@ -71,7 +71,7 @@ def generate_serious(update, context):
         #text = random.randint(1, 10)
         logger.info('generated serious text')
     except:
-        text = '¯_(ツ)_/¯'
+        text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)
@@ -83,7 +83,7 @@ def generate_not_serious(update, context):
         #text = random.randint(1, 10)
         logger.info('generated not serious text')
     except:
-        text = '¯_(ツ)_/¯'
+        text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate not serious text')
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=keyboard)

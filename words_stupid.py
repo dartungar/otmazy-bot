@@ -208,6 +208,10 @@ class Adverbial(Noun):
 class Beginning():
     def __init__(self, words, morph, tense='pres', context=None, min_seriousness=None, max_seriousness=None):
         beginnings = words['beginning']
+        if min_seriousness:
+            beginnings = beginnings[beginnings.seriousness>=min_seriousness]
+        if max_seriousness:
+            beginnings = beginnings[beginnings.seriousness<=max_seriousness]        
         self.info = beginnings[(beginnings.tense==tense)|(beginnings.tense=='all')].sample()
         self.word = self.info.iloc[0, 0]
         if self.info.iloc[0, 1]:

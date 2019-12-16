@@ -3,7 +3,8 @@
 # one to arrange them all
 # and in the sentence bind them
 from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Beginning, EndingSentence
-from helpers import *
+from helpers import declensify, get_rules
+import random
 
 
 def constructor(words, morph, tense='futr', context='default', 
@@ -84,7 +85,7 @@ def constructor(words, morph, tense='futr', context='default',
     # beginning
     beginning = ''
     if has_beginning:
-        beginning = Beginning(words=words, morph=morph).word
+        beginning = Beginning(words=words, morph=morph, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
 
 
