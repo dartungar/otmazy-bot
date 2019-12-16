@@ -24,7 +24,7 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/start', '/random'], ['/serious', '/not_serious']], True)
+keyboard = ReplyKeyboardMarkup([['/start', '/help'], ['/serious', '/not_serious', '/random']], True)
 
 
 def error(update, context):
@@ -35,14 +35,25 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otmazy Bot v 0.5.0 alpha
+    reply_text = f''' Otmazy Bot v 0.6.0 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
     Потом поумнею и начну выдавать что-то, похожее на реальность.
-    Нажми /random, чтобы сгенерировать отмазку.
+    Справка по моим командам: /help .
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
+
+
+def show_help(update, context):
+    reply_text = f''' 
+    /help - помощь по командам
+    /random - случайная отмазка
+    /serious - (относительно) серьезная отмазка
+    /not_serious - несерьезная отмазка
+    '''
+    update.message.reply_text(reply_text, reply_markup=keyboard)
+
 
 def generate_random(update, context):
     try:
@@ -85,16 +96,22 @@ def main():
     dp = updater.dispatcher
 
     # handlers
+    dp.add_error_handler(error)
+
     start_handler = CommandHandler('start', start)
     dp.add_handler(start_handler)
 
-    generate_v0_handler = CommandHandler('random', generate_random)
-    dp.add_handler(generate_v0_handler)
+    help_handler = CommandHandler('help', show_help)
+    dp.add_handler(help_handler)
+
+    generate_random_handler = CommandHandler('random', generate_random)
+    dp.add_handler(generate_random_handler)
 
     generate_serious_handler = CommandHandler('serious', generate_serious)
     dp.add_handler(generate_serious_handler)
 
-    dp.add_error_handler(error)
+    generate_not_serious_handler = CommandHandler('not_serious', generate_not_serious)
+    dp.add_handler(generate_not_serious_handler)
 
 
     updater.start_polling()
