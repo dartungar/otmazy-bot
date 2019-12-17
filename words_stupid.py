@@ -1,6 +1,6 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
 import random
-from helpers import declensify
+from helpers import declensify, declensify_text
 
 
 # существительное
@@ -23,8 +23,14 @@ class Subject():
         self.word = self.info.iloc[0, 0]
         self.parsed = morph.parse(self.word)[0]
         if datv:
-            self.word = self.parsed.inflect({'datv'}).word
-            self.parsed = morph.parse(self.word)[0]
+            if len(self.word.split(' ')) == 1:
+            #self.word = self.parsed.inflect({'datv'}).word
+                self.word = declensify(morph, self.parsed, ['datv']).word
+                self.parsed = morph.parse(self.word)[0]
+            else:
+                self.word = declensify_text(morph, self.word, ['datv'])
+                #print(self.word)
+                self.parsed = morph.parse(self.word.split(' ')[1])[0]
         self.person = '1per'
         if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
             self.person = '3per'
@@ -71,17 +77,11 @@ class PredicateSpice():
         # я собираюсь, тёща хочет
         elif 'nomn' in subj.parsed.tag:
             if to_be:
-                #self.word = tobe.word
                 pass
             else:
-                n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться']))[0]
+                n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться', 'решить', 'решиться', 'собраться', 'запланировать']))[0]
                 # TODO: избавиться от необходимости передавать подлежащее
-                #print(n)
-                n = declensify(morph, n, subj, tense='past')
-                #n = n.inflect({'past', subj.person, subj.plural})
-                #if n:
-                #print(n)
-                #print(f"n {n.word}")            
+                n = declensify(morph, n, tags=[subj.person, subj.plural, subj.gender], tense='past')         
                 self.word = n.word
                 self.parsed = n 
         else:
@@ -120,10 +120,13 @@ class Predicate():
         
 
         # TODO: более изящное решение через БД
-        self.case_object = self.info.case_object.iloc[0]
+        #self.case_object = self.info.case_object.iloc[0]
         self.aspc = aspc
         self.type = self.info.type.iloc[0]
-        self.type_alt = self.info.type_alt.iloc[0]
+        if self.type == 'volit':
+            self.can_be_composite = True
+        else:
+            self.can_be_composite = False
 
         self.parsed = morph.parse(self.info.word.iloc[0])[0]
         self.word = self.parsed.word
@@ -147,20 +150,24 @@ class Noun():
 
             n = morph.parse(self.info.iloc[0, 0])[0]
             #print(f'type: {noun_type}, case: {case}')
-
-            # ёбаный костыль FIXME
-            if len(n.word.split()) < 2:
-                n_case = n.inflect({case})
+            self.word = n.word
+            
+            if len(self.word.split(' ')) == 1:
+            #self.word = self.parsed.inflect({'datv'}).word
+                self.parsed = n
+                self.word = declensify(morph, self.parsed, [case]).word
+                self.parsed = morph.parse(self.word)[0]
             else:
-                n_case = n
+                #print(self.word)
+                self.word = declensify_text(morph, self.word, [case])
+                #print(self.word)
+                self.parsed = morph.parse(self.word.split(' ')[1])[0]
 
-            if n_case:
-                self.word = n_case.word
-            else:
-                self.word = n.word
+            # if n_case:
+            #     self.word = n_case.word
+            # else:
+            #     self.word = n.word
                 # print('could not inflect case!')
-            self.parsed = morph.parse(self.word)[0]
-
         else:
             self.info = None
             self.word = ''

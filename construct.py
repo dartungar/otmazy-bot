@@ -47,19 +47,12 @@ def constructor(words, morph, tense='futr', context='default',
     rules = get_rules(words, predicate)
 
 
-    # object FIXME: просто ставить accs - даёт баги. исправь
-    # if predicate.case_object:
-    #     obj_case = predicate.case_object
-    # else:
-    #     obj_case = 'accs'
-
-    #print(tense)
     # склоняем сказуемое, если нет спайса
     if not predicate_spice:
         if pred_aspc == 'perf' or tense == 'past':
-            predicate.parsed = declensify(morph, predicate.parsed, subject, tense=tense)
+            predicate.parsed = declensify(morph, predicate.parsed, tags=[subject.person, subject.plural, subject.gender], tense=tense)
         else:
-            predicate.parsed = declensify(morph, predicate.parsed, subject)
+            predicate.parsed = declensify(morph, predicate.parsed, tags=[subject.person, subject.plural, subject.gender])
         predicate.word = predicate.parsed.word
 
     #print(predicate.parsed)

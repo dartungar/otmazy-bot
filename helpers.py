@@ -4,63 +4,62 @@ import random
 
 
 # TODO: выделить в отдельные функции genderify, timify, personify, multify
-def declensify(morph, word_parsed, subj, tense='pres', context=None):
+def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=None):
     word = word_parsed
     # словосочетания пока не парсим от слова совсем
     if len(word.word.split()) > 1:
-        return word
-    
-    if tense == 'pres' and 'anim' in subj.parsed.tag:
+        raise Exception('can not declensify more than 1 word at once!')
+
+    # if subj:
+    #     tags = str(subj.parsed.tag).replace(' ', ',')
+    #     tags = tags.split(',')
+        
+    #     # чтобы не менять часть речи
+    #     forbidden_grammemes = ['anim', 'nomn', 'NOUN', 'ADJF', 'ADJS', 'COMP', 'VERB', 'INFN', 'PRTF', 'PRTS', 'GRND', 'NUMR', 'ADVB', 'NPRO', 'PRED', 'PREP', 'CONJ', 'PRCL', 'INTJ']
+    #     for tag in tags:
+    #         if tag in forbidden_grammemes:
+    #             tags.remove(tag)
+
+    # if 'VERB' in word_parsed.tag and 'nomn' in tags:
+    #     tags.remove('nomn')
+
+    if tense == 'pres' and 'anim' in tags:
         word = word_parsed.inflect({'3per'})
         
         if not word:
             raise Exception(f'could not inflect on word {word_parsed.word}')
     else:
-        for grm in [subj.person, subj.plural, tense, 'masc', 'femn']:
-            if grm in subj.parsed.tag or grm==tense:
-                #print(f'word before: {word.word}, tense {tense}')
-                word_modified = word_parsed.inflect({grm})
-                if word_modified:
-                    word = word_modified
-                    #print(tense)
-                    #print(word.word)
-                else:
-                    print(f'could not declensify word {word_parsed.word}')
-                    pass #TODO: логировать в info импотенцию склонятора
-        if tense == 'futr' and ('3per' and '1per') not in subj.parsed.tag:
+        for grm in tags:
+            word_modified = word_parsed.inflect({grm})
+            if word_modified:
+                word = word_modified
+            else:
+                print(f'could not declensify word {word_parsed.word} with grammeme {grm}')
+                pass #TODO: логировать в info импотенцию склонятора
+        if tense == 'futr' and 'NOUN' in tags and ('3per' and '1per') not in tags:
             #print('ding')
             word = word.inflect({'3per'})
+    
     return word
 
 
-def declensify_predicate(morph, word_parsed, subj, tense='pres', context=None):
-    word = word_parsed
-    if tense == 'pres' and 'anim' in subj.parsed.tag:
-        word = word_parsed.inflect({'3per'})
-        
-        if not word:
-            raise Exception(f'could not inflect on word {word_parsed.word}')
-    else:
-        for grm in [subj.person, subj.plural, tense, 'masc', 'femn']:
-            if grm in subj.parsed.tag:
-                word_modified = word_parsed.inflect({grm})
-                if word_modified:
-                    word = word_modified
-                    print(word)
-                else:
-                    print(f'could not declensify word {word_parsed.word}')
-                    pass #TODO: логировать в info импотенцию склонятора
-                    #raise Exception(f'Error: Could not inflect on word "{word_parsed.word}" !')                    
-    #print(f'declensified word {word}')            
-    return word  
-
 
 # TODO: склонение целого словосочетания - для beginning & ending чтобы не вылавливать из середины "могу", "могла" итд
-def declensify_text(morph, text, subj, tense, context):
+def declensify_text(morph, text, tags, tense='pres', context=None):
     text_declensified = ''
+    words_parsed = []
     for word in text.split():
-        word = morph.parse(word)[0]
-        text_declensified += declensify(morph, word, subj, tense=tense, context=context).word + ' '
+        words_parsed.append(morph.parse(word)[0])
+    if len(words_parsed) == 2:
+        # "Черное море"
+        text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense, context=context).word + ' '
+        if 'ADJF' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:
+            text_declensified += declensify(morph, words_parsed[1], tags=tags, tense=tense, context=context).word
+        if 'NOUN' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:        
+            text_declensified += words_parsed[1].word
+    else:
+        raise Exception('can not declensify_text more than 2 words at once!')
+    
     return text_declensified
 
 
