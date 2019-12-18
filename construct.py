@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, Object, Adverbial, Beginning, EndingSentence
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, Object, Adverbial, Beginning, EndingSentence
 from helpers import declensify, get_rules
 import random
 
@@ -13,6 +13,7 @@ def constructor(words, morph, tense='futr', context='default',
                 has_predicate_spice=True, 
                 to_be=False, 
                 has_object=False, 
+                has_obj_spice=False,
                 has_adverbial=True, 
                 has_beginning=False, 
                 has_ending=False,
@@ -59,11 +60,15 @@ def constructor(words, morph, tense='futr', context='default',
 
     obj = ''
     predlog_obj = ''
+    obj_spice = ''
     if rules.obj_type.iloc[0]:
         obj = Object(words=words, morph=morph, noun_type=rules.obj_type.iloc[0], case=rules.obj_case.iloc[0], min_seriousness=min_seriousness)
         #print(obj.word)
 
         predlog_obj = rules.predlog_obj.iloc[0]
+        if has_obj_spice:
+            obj_spice = NounSpice(words, morph, obj.parsed)
+            obj_spice = declensify(morph, obj_spice.parsed, tags=['ablt', obj.plural, obj.gender]).word
 
 
     # TODO: разобраться, что влияет на наличие обстоятельства и как я хочу этим управлять
@@ -98,7 +103,7 @@ def constructor(words, morph, tense='futr', context='default',
         end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness)
         #print(end_sentence.word)
 
-    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj if predlog_obj else ''} {obj.word if obj else ''} {predlog_adv if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
+    text = f"{beginning} {subject.word} {predicate_spice} {predicate.word} {predlog_obj if predlog_obj else ''} {obj_spice if obj_spice else ''} {obj.word if obj else ''} {predlog_adv if predlog_adv else ''} { adverbial.word if adverbial else ''}. {end_sentence.word if has_ending_sentence else ''}"
 
     return text
 

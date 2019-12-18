@@ -133,6 +133,15 @@ class Predicate():
 
 
 
+class NounSpice():
+    def __init__(self, words, morph, noun_parsed=None):
+        if ('anim' in noun_parsed.tag and 'Name' not in noun_parsed.tag) or 'anim' not in noun_parsed.tag:
+            self.word = random.choice(['мой', 'свой'])
+            self.parsed = morph.parse(self.word)[0]
+        else:
+            self.word = ''
+
+
 # класс-родитель для всех существительных
 class Noun():
     def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
@@ -155,19 +164,25 @@ class Noun():
             if len(self.word.split(' ')) == 1:
             #self.word = self.parsed.inflect({'datv'}).word
                 self.parsed = n
-                self.word = declensify(morph, self.parsed, [case]).word
-                self.parsed = morph.parse(self.word)[0]
+                self.parsed = declensify(morph, self.parsed, [case])
+                self.word = self.parsed.word
             else:
                 #print(self.word)
                 self.word = declensify_text(morph, self.word, [case])
                 #print(self.word)
                 self.parsed = morph.parse(self.word.split(' ')[1])[0]
 
-            # if n_case:
-            #     self.word = n_case.word
-            # else:
-            #     self.word = n.word
-                # print('could not inflect case!')
+            if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
+                self.person = '3per'
+            self.plural = 'sing'
+            for plur in ['sing', 'plur']:
+                if plur in self.parsed.tag:
+                    self.plural = plur
+            self.gender = 'masc'
+            for gender in ['masc', 'femn', 'neut']:
+                if gender in self.parsed.tag:
+                    self.gender = gender
+
         else:
             self.info = None
             self.word = ''
