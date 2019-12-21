@@ -3,7 +3,7 @@ import pymorphy2
 import random
 import template
 from construct import constructor
-from helpers import prettify_text, needs_capitalizing
+from helpers import create_text_from_list, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
@@ -11,14 +11,14 @@ def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_s
     tense = random.choice(['past', 'futr']) 
     subjim = random.randint(0, 1)
 
-    text = constructor(words=words, 
+    word_list = constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
                         subject_is_myself=subjim, 
                         subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
-                        has_object=random.randint(0, 1),
+                        #has_object=random.randint(0, 1),
                         #has_obj_spice=1,#random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
                         has_ending=random.randint(0, 1),
@@ -28,9 +28,9 @@ def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_s
 
 
     # костыль поганый. FIXME
-    prettified_text = prettify_text(morph, text)
+    text = create_text_from_list(morph, word_list)
 
-    return prettified_text
+    return text
 
 
 if __name__ == '__main__':

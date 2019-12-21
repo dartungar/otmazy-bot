@@ -58,39 +58,30 @@ def declensify_text(morph, text, tags, tense='pres', context=None):
     return text_declensified
 
 
-# финальный марафет для сгенерированного текста
-def prettify_text(morph, text):
-    text = text.split('.')
-    prettified_text = ''
-    
-    for sentence in text:
-        sentence = sentence.strip()
-        sentence_new = []
-        
-        if sentence:
-            sentence_split = sentence.split(' ')
-            
-            for word in sentence_split:
-                word = word.strip().replace('.', '')
-                if word:
-                    if needs_capitalizing(morph, word):
-                        word = word.capitalize()
-                    sentence_new.append(word)
-            
-            sentence_new[0] = sentence_new[0].capitalize()
-            sentence = ' '.join(sentence_new)
-            prettified_text += sentence
-            prettified_text += '. '
-    
-    return prettified_text
+def create_text_from_list(morph, word_list):
+    text = ''
+
+    for word in word_list:
+        if needs_capitalizing(morph, word):
+            word = word.capitalize()
+        text += word
+        text += ' '
+
+    text = text.replace(' . ', '. ')
+    text = text.replace('  ', ' ')
+    return text
 
 
 # капитализируем имена собственные
 def needs_capitalizing(morph, word):
+    if len(word.split()) > 1:
+        word = word.split()[0]
+
     word_parsed = morph.parse(word)[0]
     for grm in ['Name', 'Geox']:
         if grm in word_parsed.tag:
             return True
+
     return False
 
 

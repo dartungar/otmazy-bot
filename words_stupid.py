@@ -1,6 +1,6 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
 import random
-from helpers import declensify, declensify_text
+from helpers import declensify, declensify_text, needs_capitalizing
 
 
 # существительное
@@ -90,7 +90,7 @@ class PredicateSpice():
 
 # сказуемое
 class Predicate():
-    def __init__(self, words, morph, tense='pres', verb_type=None, has_object=True, noun_type=None, case=None, aspc='impf', context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, tense='pres', verb_type=None, noun_type=None, case=None, aspc='impf', context=None, min_seriousness=None, max_seriousness=None):
         
         verbs = words['verb'].fillna(value=0)
 
@@ -100,12 +100,6 @@ class Predicate():
             verbs = verbs[verbs.seriousness>=min_seriousness]
         if max_seriousness:
             verbs = verbs[verbs.seriousness<=max_seriousness]
-
-        # фильтр два
-        if has_object:
-            verbs = verbs[(verbs.type!='travel')&(verbs.type!='exist')] 
-        else:
-            verbs = verbs[(verbs.type=='travel')|(verbs.type=='exist')]
 
         # можем прямо определить тип сказуемого
         if verb_type:
@@ -135,7 +129,7 @@ class Predicate():
 
 class NounSpice():
     def __init__(self, words, morph, noun_parsed=None):
-        if ('anim' in noun_parsed.tag and 'Name' not in noun_parsed.tag) or 'anim' not in noun_parsed.tag:
+        if ('anim' in noun_parsed.tag and 'Name' not in noun_parsed.tag and 'Geox' not in noun_parsed.tag) or 'anim' not in noun_parsed.tag:
             self.word = random.choice(['мой', 'свой'])
             self.parsed = morph.parse(self.word)[0]
         else:
@@ -144,49 +138,43 @@ class NounSpice():
 
 # класс-родитель для всех существительных
 class Noun():
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, noun_type, case=None, context=None, min_seriousness=None, max_seriousness=None):
         self.case = case
         self.type = noun_type
-        if noun_type:
-            nouns = words['noun'].fillna(value='')
-            
-            if min_seriousness:
-                nouns = nouns[nouns.seriousness>=min_seriousness]
-            if max_seriousness:
-                nouns = nouns[nouns.seriousness<=max_seriousness]
-            
-            self.info = nouns[nouns.type==noun_type].sample()   
+        nouns = words['noun'].fillna(value='')
+        
+        if min_seriousness:
+            nouns = nouns[nouns.seriousness>=min_seriousness]
+        if max_seriousness:
+            nouns = nouns[nouns.seriousness<=max_seriousness]
+        
+        self.info = nouns[nouns.type==noun_type].sample()   
 
-            n = morph.parse(self.info.iloc[0, 0])[0]
-            #print(f'type: {noun_type}, case: {case}')
-            self.word = n.word
-            
-            if len(self.word.split(' ')) == 1:
-            #self.word = self.parsed.inflect({'datv'}).word
-                self.parsed = n
-                self.parsed = declensify(morph, self.parsed, [case])
-                self.word = self.parsed.word
-            else:
-                #print(self.word)
-                self.word = declensify_text(morph, self.word, [case])
-                #print(self.word)
-                self.parsed = morph.parse(self.word.split(' ')[1])[0]
-
-            if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
-                self.person = '3per'
-            self.plural = 'sing'
-            for plur in ['sing', 'plur']:
-                if plur in self.parsed.tag:
-                    self.plural = plur
-            self.gender = 'masc'
-            for gender in ['masc', 'femn', 'neut']:
-                if gender in self.parsed.tag:
-                    self.gender = gender
-
+        n = morph.parse(self.info.iloc[0, 0])[0]
+        #print(f'type: {noun_type}, case: {case}')
+        self.word = n.word
+        
+        if len(self.word.split(' ')) == 1:
+        #self.word = self.parsed.inflect({'datv'}).word
+            self.parsed = n
+            self.parsed = declensify(morph, self.parsed, [case])
+            self.word = self.parsed.word
         else:
-            self.info = None
-            self.word = ''
-            self.parsed = ''
+            #print(self.word)
+            self.word = declensify_text(morph, self.word, [case])
+            #print(self.word)
+            self.parsed = morph.parse(self.word.split(' ')[1])[0]
+
+        if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
+            self.person = '3per'
+        self.plural = 'sing'
+        for plur in ['sing', 'plur']:
+            if plur in self.parsed.tag:
+                self.plural = plur
+        self.gender = 'masc'
+        for gender in ['masc', 'femn', 'neut']:
+            if gender in self.parsed.tag:
+                self.gender = gender
 
 
 
@@ -268,13 +256,24 @@ class EndingSentence():
         if custom_word_parsed:
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
             self.word = self.info.sentence.iloc[0]
+            self.word = self.word.strip().capitalize()
             case = self.info.word_case.iloc[0]
             #print(f'custon_word_parsed: {custom_word_parsed}, case {case}')
             word = custom_word_parsed.inflect({case}).word
+
+            if len(custom_word_parsed.word.split(' ')) == 1:
+            #self.word = self.parsed.inflect({'datv'}).word
+                custom_word_parsed = declensify(morph, custom_word_parsed, [case]).word
+            else:
+                custom_word_parsed = declensify_text(morph, custom_word_parsed.word, [case])
+                #print(self.word)
+            if needs_capitalizing(morph, word):
+                word = word.capitalize()
             self.word = self.word.replace('<word>', word)
         else:
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==False)].sample()
             self.word = self.info.sentence.iloc[0]
-        self.word = self.word.strip().capitalize()
+            self.word = self.word.strip().capitalize()
+        
         #print(self.word)
     
