@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, Object, Adverbial, Beginning, EndingSentence
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, BeginningSpice, EndingSentence
 from helpers import declensify, get_rules, needs_capitalizing
 import random
 
@@ -18,9 +18,13 @@ def constructor(words, morph, tense='futr', context='default',
                 has_ending=False):
     
     word_list = []
+    unexplained_person = None
 
     # subject
     subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+
+    if 'Name' in subject.parsed.tag:
+        unexplained_person = subject
 
     word_list.append(subject.word)
 
@@ -64,69 +68,87 @@ def constructor(words, morph, tense='futr', context='default',
     word_list.append(predicate.word)
     #print(predicate.parsed)
 
-    word1 = ''
-    word1_predlog = ''
-    #word1_spice = ''
+          
+
     if rules.word1.iloc[0]:
-        word1 = Noun(words=words, morph=morph, noun_type=rules.word1_type.iloc[0], case=rules.word1_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        if rules.word1.iloc[0] == 'noun':
+            word1 = Noun(words=words, morph=morph, noun_type=rules.word1_type.iloc[0], case=rules.word1_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            if 'Name' in word1.parsed.tag:
+                unexplained_person = word1
         #print(word1.word)
 
         if rules.word1_predlog.iloc[0]:
             word1_predlog = rules.word1_predlog.iloc[0]
             word_list.append(word1_predlog)
-        # has_word1_spice = random.randint(0, 1)
-        # if has_word1_spice:
-        #     word1_spice = NounSpice(words, morph, word1.parsed)
-        #     if word1_spice.word:
-        #         word1_spice = declensify(morph, word1_spice.parsed, tags=['ablt', word1.plural, word1.gender]).word
+
         word_list.append(word1.word)
 
-    word2 = ''
-    word2_predlog = ''
-    #word2_spice = ''
+
     if rules.word2.iloc[0]:
         # word2
-        word2 = Noun(words=words, morph=morph, noun_type=rules.word2_type.iloc[0], case=rules.word2_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
-
+        if rules.word2.iloc[0] == 'noun':
+            word2 = Noun(words=words, morph=morph, noun_type=rules.word2_type.iloc[0], case=rules.word2_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            if 'Name' in word2.parsed.tag:
+                unexplained_person = word2
         # predlog
         if rules.word2_predlog.iloc[0]:
             word2_predlog = rules.word2_predlog.iloc[0]
             word_list.append(word2_predlog)
 
-        # has_word2_spice = random.randint(0, 1)
-        # if has_word2_spice:
-        #     word2_spice = NounSpice(words, morph, word2.parsed)
-        #     # TODO: проверить, актуально для второго слова такие теги
-        #     if word2_spice.word:
-        #         word2_spice = declensify(morph, word2_spice.parsed, tags=['ablt', word2.plural, word2.gender]).word
         word_list.append(word2.word)
 
 
-    # beginning
+    if rules.word3.iloc[0]:
+        # word3
+        if rules.word3.iloc[0] == 'noun':
+            word3 = Noun(words=words, morph=morph, noun_type=rules.word3_type.iloc[0], case=rules.word3_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            if 'Name' in word3.parsed.tag:
+                unexplained_person = word3
+        # predlog
+        if rules.word3_predlog.iloc[0]:
+            word3_predlog = rules.word3_predlog.iloc[0]
+            word_list.append(word3_predlog)
+
+        word_list.append(word3.word)
+
+
+    # beginning spice
     beginning = ''
     if has_beginning:
-        beginning = Beginning(words=words, morph=morph, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
+        beginning = BeginningSpice(words=words, morph=morph, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
         word_list.insert(0, beginning)
 
     word_list.append('.')
+
     
-    # новый ending!
-    end_sentence = ''
-    cwp = None
+            
+
+    # ending sentence
     if has_ending:
-        has_cwp = random.randint(0, 1)
-        if has_cwp:
-            if subject.is_myself == False:
-                cwp = subject.parsed
-            elif word1:
-                cwp = word1.parsed
-            else:
-                cwp = word2.parsed
+        cwp = None
+        # убрал кастомные предложения, чтобы не повторять имена и сущности из explanation. плюс кастомные предложения туповаты :D
+        # has_cwp = random.randint(0, 1)
+        # if has_cwp:
+        #     if :
+        #         cwp = unexplained_person.parsed #TODO: добавить ExplainSentence
+        #     elif word1:
+        #         cwp = word1.parsed
+        #     else:
+        #         cwp = word2.parsed
         end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
-        word_list.append(end_sentence.word.capitalize())
+        word_list.append(end_sentence.word)
         word_list.append('.')
+
+
+    # если вбросили какое-то имя - даем подобие объяснения
+    if unexplained_person:
+        explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        #print(end_sentence.word)
+        word_list.append(explanation.word)
+        word_list.append('. ')
+
 
     word_list[0] = word_list[0].capitalize()
 

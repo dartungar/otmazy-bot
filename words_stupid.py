@@ -22,15 +22,19 @@ class Subject():
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
         self.word = self.info.iloc[0, 0]
         self.parsed = morph.parse(self.word)[0]
-        if datv:
-            if len(self.word.split(' ')) == 1:
-            #self.word = self.parsed.inflect({'datv'}).word
+        self.num_of_words = len(self.word.split(' '))
+        if self.num_of_words == 1:
+            if datv:
                 self.word = declensify(morph, self.parsed, ['datv']).word
                 self.parsed = morph.parse(self.word)[0]
-            else:
+        elif self.num_of_words == 2:
+            if datv:
                 self.word = declensify_text(morph, self.word, ['datv'])
                 #print(self.word)
-                self.parsed = morph.parse(self.word.split(' ')[1])[0]
+            self.parsed = morph.parse(self.word.split(' ')[1])[0]     
+        else:
+            raise Exception('lenght of Subject > 2 words!')
+
         self.person = '1per'
         if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
             self.person = '3per'
@@ -42,6 +46,7 @@ class Subject():
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
+                
         
  
 
@@ -66,7 +71,7 @@ class PredicateSpice():
                 if tense == 'futr':
                     self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
                 elif tense == 'past':
-                    self.word = random.choice(['нужно было', 'надо было', 'необходимо было', 'пришлось', 'давно пора было', 'позарез надо было', 'припекло'])
+                    self.word = random.choice(['нужно было', 'надо было', 'необходимо было', 'пришлось', 'давно пора было', 'позарез надо было', 'припекло', 'пришлось'])
                 self.parsed = morph.parse(self.word)[0]
 
         # я буду, он будет
@@ -84,8 +89,8 @@ class PredicateSpice():
                 n = declensify(morph, n, tags=[subj.person, subj.plural, subj.gender], tense='past')         
                 self.word = n.word
                 self.parsed = n 
-        else:
-            raise Exception('Invalid Case for Predicate Spice!')
+        # else:
+        #     raise Exception('Invalid Case for Predicate Spice!')
         
 
 # сказуемое
@@ -175,47 +180,12 @@ class Noun():
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
+        self.needs_capitalizing = self.info.needs_capitalizing.iloc[0]
+        if self.needs_capitalizing:
+            self.word = self.word.capitalize()
+     
 
-
-
-# склоняем по умолчанию или с obj_case от predicate
-class Object(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
-        self.member = 'object'
-    
-        
-        
-
-
-# TODO SHIT GETS REAL
-# or not. можно сделать тупую функцию, а всю логику добавить в конструктор
-class Adverbial(Noun):
-    def __init__(self, words, morph, noun_type=None, case=None, context=None, min_seriousness=None, max_seriousness=None):
-        Noun.__init__(self, words, morph, noun_type=noun_type, case=case, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
-        self.member = 'adverbial'
-        
-
-
-# class Predlog():
-#     def __init__(self, words, morph, word=None, context=None):
-#         if word.case == 'accs' and word.type == 'event' and word.member == 'object':
-#             self.word = ''
-#         # elif word.case == 'accs':
-#         #     if word.type in ['event', 'project']:
-#         #         if word.member == 'adverbial':
-#         #             self.word = 'для'
-#         elif word.type:
-#             predlogs = words['predlog'].fillna(value='')
-#             self.info = predlogs[(predlogs.noun_type==word.type) & (predlogs.noun_case==word.case)].sample()
-#             self.word = self.info.iloc[0, 0]
-#         else:
-#             self.info = None
-#             self.word = ''        
-        
-
-
-class Beginning():
+class BeginningSpice():
     def __init__(self, words, morph, tense='pres', context=None, min_seriousness=None, max_seriousness=None):
         beginnings = words['beginning']
         if min_seriousness:
@@ -244,7 +214,7 @@ class Greeting():
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class EndingSentence():
-    def __init__(self, words, morph, tense='pres', type='beginning', custom_word_parsed=None, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, tense='pres', type='ending', custom_word_parsed=None, context=None, min_seriousness=None, max_seriousness=None):
         sentences = words['sentences']
 
         if min_seriousness:

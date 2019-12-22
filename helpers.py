@@ -39,19 +39,23 @@ def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=N
 
 
 # TODO: склонение целого словосочетания - для beginning & ending чтобы не вылавливать из середины "могу", "могла" итд
-def declensify_text(morph, text, tags, tense='pres', context=None):
+def declensify_text(morph, text, tags, tense='pres'):
     text_declensified = ''
     words_parsed = []
-    for word in text.split():
+    for word in text.split(' '):
         words_parsed.append(morph.parse(word)[0])
-    if len(words_parsed) == 2:
-        
-        text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense, context=context).word + ' '
+
+    if len(words_parsed) == 1:
+        text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense).word
+
+    elif len(words_parsed) == 2:
+        text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense).word + ' '
         # "Черное море"
         if 'ADJF' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:
-            text_declensified += declensify(morph, words_parsed[1], tags=tags, tense=tense, context=context).word
+            text_declensified += declensify(morph, words_parsed[1], tags=tags, tense=tense).word
         if 'NOUN' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:        
             text_declensified += words_parsed[1].word
+
     else:
         raise Exception('can not declensify_text more than 2 words at once!')
     
@@ -61,13 +65,15 @@ def declensify_text(morph, text, tags, tense='pres', context=None):
 def create_text_from_list(morph, word_list):
     text = ''
 
-    for word in word_list:
-        if needs_capitalizing(morph, word):
-            word = word.capitalize()
-        text += word
-        text += ' '
+    # for word in word_list:
+    #     if needs_capitalizing(morph, word):
+    #         word = word.capitalize()
+    #     text += word
+    #     text += ' '
 
-    text = text.replace(' . ', '. ')
+    text = ' '.join(word_list)
+    #text = text.replace(' . ', '. ')
+    text = text.replace(' .', '.')
     text = text.replace('  ', ' ')
     return text
 
@@ -88,7 +94,7 @@ def needs_capitalizing(morph, word):
 # правила для подбора существительных и предлогов на основе сказуемого
 def get_rules(words, predicate):
     rules = words['rules']
-    rules = rules[rules.verb_type==predicate.type].sample()
-    return rules
+    rule = rules[rules.verb_type==predicate.type].sample()
+    return rule
         
 
