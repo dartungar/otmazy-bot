@@ -126,17 +126,7 @@ def constructor(words, morph, tense='futr', context='default',
 
     # ending sentence
     if has_ending:
-        cwp = None
-        # убрал кастомные предложения, чтобы не повторять имена и сущности из explanation. плюс кастомные предложения туповаты :D
-        # has_cwp = random.randint(0, 1)
-        # if has_cwp:
-        #     if :
-        #         cwp = unexplained_person.parsed #TODO: добавить ExplainSentence
-        #     elif word1:
-        #         cwp = word1.parsed
-        #     else:
-        #         cwp = word2.parsed
-        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(end_sentence.word)
         word_list.append('.')
@@ -147,8 +137,20 @@ def constructor(words, morph, tense='futr', context='default',
         explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(explanation.word)
-        word_list.append('. ')
-
+        word_list.append('.')
+    # можем и просто красок добавить на тему чего-то из отмазы
+    else:
+        #cwp = None
+        has_cwp = random.randint(0, 1)
+        if has_cwp:
+            if not subject_is_myself:
+                cwp = subject.parsed #TODO: добавить ExplainSentence
+            elif word1:
+                cwp = word1.parsed
+            explanation = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            word_list.append(explanation.word)
+            word_list.append('.')
+            
 
     word_list[0] = word_list[0].capitalize()
 

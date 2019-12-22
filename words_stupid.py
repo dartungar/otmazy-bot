@@ -46,7 +46,7 @@ class Subject():
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
-                
+
         
  
 
@@ -226,6 +226,11 @@ class EndingSentence():
         if custom_word_parsed:
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
             self.word = self.info.sentence.iloc[0]
+
+            custom_word_at_beginning = False
+            if self.word[0] == '<':
+                custom_word_at_beginning = True
+
             self.word = self.word.strip().capitalize()
             case = self.info.word_case.iloc[0]
             #print(f'custon_word_parsed: {custom_word_parsed}, case {case}')
@@ -237,7 +242,7 @@ class EndingSentence():
             else:
                 custom_word_parsed = declensify_text(morph, custom_word_parsed.word, [case])
                 #print(self.word)
-            if needs_capitalizing(morph, word):
+            if needs_capitalizing(morph, word) or custom_word_at_beginning:
                 word = word.capitalize()
             self.word = self.word.replace('<word>', word)
         else:
