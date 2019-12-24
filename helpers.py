@@ -98,3 +98,7 @@ def get_rules(words, predicate):
     return rule
         
 
+def get_context_column_name(context):
+    ccn = 'context_'+context
+    return ccn
+

@@ -7,7 +7,7 @@ from helpers import declensify, get_rules, needs_capitalizing
 import random
 
 
-def constructor(words, morph, tense='futr', context='default', 
+def constructor(words, morph, tense='futr', context=None, 
                 min_seriousness=None,
                 max_seriousness=None,
                 subject_is_myself=True, 
@@ -21,7 +21,7 @@ def constructor(words, morph, tense='futr', context='default',
     unexplained_person = None
 
     # subject
-    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
 
     if 'Name' in subject.parsed.tag:
         unexplained_person = subject
@@ -51,7 +51,7 @@ def constructor(words, morph, tense='futr', context='default',
     
 
     # predicate
-    predicate = Predicate(words=words, morph=morph, tense=tense, aspc=pred_aspc, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+    predicate = Predicate(words=words, morph=morph, tense=tense, aspc=pred_aspc, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
 
     # TODO: переработать блок сказуемого чтобы не было нужды в этой хуйне
     rules = get_rules(words, predicate)
@@ -72,7 +72,7 @@ def constructor(words, morph, tense='futr', context='default',
 
     if rules.word1.iloc[0]:
         if rules.word1.iloc[0] == 'noun':
-            word1 = Noun(words=words, morph=morph, noun_type=rules.word1_type.iloc[0], case=rules.word1_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            word1 = Noun(words=words, morph=morph, noun_type=rules.word1_type.iloc[0], case=rules.word1_case.iloc[0], context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
             if 'Name' in word1.parsed.tag:
                 unexplained_person = word1
         #print(word1.word)
@@ -87,7 +87,7 @@ def constructor(words, morph, tense='futr', context='default',
     if rules.word2.iloc[0]:
         # word2
         if rules.word2.iloc[0] == 'noun':
-            word2 = Noun(words=words, morph=morph, noun_type=rules.word2_type.iloc[0], case=rules.word2_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            word2 = Noun(words=words, morph=morph, noun_type=rules.word2_type.iloc[0], case=rules.word2_case.iloc[0], context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
             if 'Name' in word2.parsed.tag:
                 unexplained_person = word2
         # predlog
@@ -101,7 +101,7 @@ def constructor(words, morph, tense='futr', context='default',
     if rules.word3.iloc[0]:
         # word3
         if rules.word3.iloc[0] == 'noun':
-            word3 = Noun(words=words, morph=morph, noun_type=rules.word3_type.iloc[0], case=rules.word3_case.iloc[0], min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            word3 = Noun(words=words, morph=morph, noun_type=rules.word3_type.iloc[0], case=rules.word3_case.iloc[0], context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
             if 'Name' in word3.parsed.tag:
                 unexplained_person = word3
         # predlog
@@ -115,7 +115,7 @@ def constructor(words, morph, tense='futr', context='default',
     # beginning spice
     beginning = ''
     if has_beginning:
-        beginning = BeginningSpice(words=words, morph=morph, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
+        beginning = BeginningSpice(words=words, morph=morph, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
         word_list.insert(0, beginning)
 
@@ -126,7 +126,7 @@ def constructor(words, morph, tense='futr', context='default',
 
     # ending sentence
     if has_ending:
-        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(end_sentence.word)
         word_list.append('.')
@@ -134,7 +134,7 @@ def constructor(words, morph, tense='futr', context='default',
 
     # если вбросили какое-то имя - даем подобие объяснения
     if unexplained_person:
-        explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', context=context, custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(explanation.word)
         word_list.append('.')
@@ -147,7 +147,7 @@ def constructor(words, morph, tense='futr', context='default',
                 cwp = subject.parsed #TODO: добавить ExplainSentence
             elif word1:
                 cwp = word1.parsed
-            explanation = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            explanation = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
             word_list.append(explanation.word)
             word_list.append('.')
             

@@ -1,6 +1,6 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
 import random
-from helpers import declensify, declensify_text, needs_capitalizing
+from helpers import declensify, declensify_text, get_context_column_name, needs_capitalizing
 
 
 # существительное
@@ -12,6 +12,9 @@ class Subject():
         # возможно это уже совсем другой шаблон
 
         subjects = words['subj'].fillna(value=0)
+
+        if context:
+            subjects = subjects[subjects[get_context_column_name(context)]==True]
 
         if min_seriousness:
             subjects = subjects[subjects.seriousness>=min_seriousness]
@@ -99,6 +102,9 @@ class Predicate():
         
         verbs = words['verb'].fillna(value=0)
 
+        if context:
+            verbs = verbs[verbs[get_context_column_name(context)]==True]
+
         # фильтр раз
 
         if min_seriousness:
@@ -146,7 +152,10 @@ class Noun():
     def __init__(self, words, morph, noun_type, case=None, context=None, min_seriousness=None, max_seriousness=None):
         self.case = case
         self.type = noun_type
-        nouns = words['noun'].fillna(value='')
+        nouns = words['noun'].fillna(value=0)
+
+        if context:
+            nouns = nouns[nouns[get_context_column_name(context)]==True]
         
         if min_seriousness:
             nouns = nouns[nouns.seriousness>=min_seriousness]
@@ -187,7 +196,11 @@ class Noun():
 
 class BeginningSpice():
     def __init__(self, words, morph, tense='pres', context=None, min_seriousness=None, max_seriousness=None):
-        beginnings = words['beginning']
+        beginnings = words['beginning'].fillna(value=0)
+
+        if context:
+            beginnings = beginnings[beginnings[get_context_column_name(context)]==True]
+
         if min_seriousness:
             beginnings = beginnings[beginnings.seriousness>=min_seriousness]
         if max_seriousness:
@@ -215,7 +228,10 @@ class Greeting():
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class EndingSentence():
     def __init__(self, words, morph, tense='pres', type='ending', custom_word_parsed=None, context=None, min_seriousness=None, max_seriousness=None):
-        sentences = words['sentences']
+        sentences = words['sentences'].fillna(value=0)
+
+        if context:
+            sentences = sentences[sentences[get_context_column_name(context)]==True]
 
         if min_seriousness:
             sentences = sentences[sentences.seriousness>=min_seriousness]
