@@ -171,13 +171,13 @@ def main():
     help_handler = CommandHandler('help', show_help)
     dp.add_handler(help_handler)
 
-    go_to_contexts_handler = CommandHandler('/contexts', go_to_contexts)
+    go_to_contexts_handler = CommandHandler('контексты', go_to_contexts)
     dp.add_handler(go_to_contexts_handler)
 
-    go_to_main_menu_handler = CommandHandler('/back_to_menu', go_to_main_menu)
+    go_to_main_menu_handler = CommandHandler('назад', go_to_main_menu)
     dp.add_handler(go_to_main_menu_handler)
 
-    generate_random_handler = CommandHandler('random', generate_random)
+    generate_random_handler = CommandHandler('случайная', generate_random)
     dp.add_handler(generate_random_handler)
 
     generate_serious_handler = CommandHandler('serious', generate_serious)
@@ -186,16 +186,16 @@ def main():
     generate_not_serious_handler = CommandHandler('not_serious', generate_not_serious)
     dp.add_handler(generate_not_serious_handler)
 
-    generate_personal_handler = CommandHandler('personal', generate_personal)
+    generate_personal_handler = CommandHandler('личные_дела', generate_personal)
     dp.add_handler(generate_personal_handler)
 
-    generate_family_handler = CommandHandler('family', generate_family)
+    generate_family_handler = CommandHandler('семья', generate_family)
     dp.add_handler(generate_family_handler)
 
-    generate_work_handler = CommandHandler('work', generate_work)
+    generate_work_handler = CommandHandler('работа', generate_work)
     dp.add_handler(generate_work_handler)
 
-    generate_study_handler = CommandHandler('study', generate_study)
+    generate_study_handler = CommandHandler('учеба', generate_study)
     dp.add_handler(generate_study_handler)
 
 
