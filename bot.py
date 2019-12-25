@@ -37,7 +37,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otmazy Bot v 0.8 alpha
+    reply_text = f''' Otmazy Bot v 0.8.5 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
@@ -118,7 +118,7 @@ def generate_personal(update, context):
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about personal')
     #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    update.message.reply_text(text, reply_markup=context_keyboard)
 
 
 def generate_work(update, context):
@@ -130,7 +130,7 @@ def generate_work(update, context):
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about work')
     #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    update.message.reply_text(text, reply_markup=context_keyboard)
 
 
 def generate_family(update, context):
@@ -142,7 +142,7 @@ def generate_family(update, context):
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about family')
     #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    update.message.reply_text(text, reply_markup=context_keyboard)
 
 
 def generate_study(update, context):
@@ -154,7 +154,7 @@ def generate_study(update, context):
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about study')
     #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    update.message.reply_text(text, reply_markup=context_keyboard)
 
 
 def main():
