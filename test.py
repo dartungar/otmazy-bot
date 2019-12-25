@@ -43,12 +43,5 @@ if __name__ == '__main__':
         #temp = create_random_template()
         #text = f'{str(temp[0])} {temp[1].text}'
         #str(create_random_template()[0]) +' '+  create_random_template()[1].text
-        text = test_constructor(words=df, morph=morph, context='work')
+        text = test_constructor(words=df, morph=morph, context='study')
         print(text)
-
-
-
-
-
-
-

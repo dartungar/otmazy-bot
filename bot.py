@@ -24,7 +24,9 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/serious', '/not_serious', '/random'], ['/start', '/help']], True)
+keyboard = ReplyKeyboardMarkup([['/contexts', '/random'], ['/start', '/help']], True)
+
+context_keyboard = ReplyKeyboardMarkup([['/personal', '/work', '/family', '/study'], ['/random', '/back_to_menu']], True)
 
 
 def error(update, context):
@@ -48,11 +50,29 @@ def start(update, context):
 def show_help(update, context):
     reply_text = f''' 
     /help - помощь по командам
-    /random - случайная отмазка
-    /serious - (относительно) серьезная отмазка
-    /not_serious - несерьезная отмазка
+    /contexts - отговорки по контекстам (работа, учеба, личные дела) alpha
+    /random - случайная отговорка
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
+
+
+def go_to_contexts(update, context):
+    update.message.reply_text('Выберите контекст отговорки.', reply_markup=context_keyboard)
+
+
+def go_to_main_menu(update, context):
+    update.message.reply_text(' ', reply_markup=keyboard)
+
+# def generate_with_context(update, context, cntxt):
+#     try:
+#         text = test_constructor(words=df, morph=morph, context=cntxt)
+#         #text = random.randint(1, 10)
+#         logger.info('generated not serious text')
+#     except:
+#         text = '¯\_(ツ)_/¯'
+#         logger.warning(f'failed to generate text with context {cntxt}')
+#     #text = 'a reply'
+#     update.message.reply_text(text, reply_markup=keyboard)
 
 
 def generate_random(update, context):
@@ -89,6 +109,53 @@ def generate_not_serious(update, context):
     update.message.reply_text(text, reply_markup=keyboard)
 
 
+def generate_personal(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='personal')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about personal')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=keyboard)
+
+
+def generate_work(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='work')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about work')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=keyboard)
+
+
+def generate_family(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='family')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about family')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=keyboard)
+
+
+def generate_study(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='study')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about study')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=keyboard)
+
 
 def main():
 
@@ -104,6 +171,12 @@ def main():
     help_handler = CommandHandler('help', show_help)
     dp.add_handler(help_handler)
 
+    go_to_contexts_handler = CommandHandler('/contexts', go_to_contexts)
+    dp.add_handler(go_to_contexts_handler)
+
+    go_to_main_menu_handler = CommandHandler('/back_to_menu', go_to_main_menu)
+    dp.add_handler(go_to_main_menu_handler)
+
     generate_random_handler = CommandHandler('random', generate_random)
     dp.add_handler(generate_random_handler)
 
@@ -112,6 +185,18 @@ def main():
 
     generate_not_serious_handler = CommandHandler('not_serious', generate_not_serious)
     dp.add_handler(generate_not_serious_handler)
+
+    generate_personal_handler = CommandHandler('personal', generate_personal)
+    dp.add_handler(generate_personal_handler)
+
+    generate_family_handler = CommandHandler('family', generate_family)
+    dp.add_handler(generate_family_handler)
+
+    generate_work_handler = CommandHandler('work', generate_work)
+    dp.add_handler(generate_work_handler)
+
+    generate_study_handler = CommandHandler('study', generate_study)
+    dp.add_handler(generate_study_handler)
 
 
     updater.start_polling()

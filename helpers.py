@@ -13,6 +13,11 @@ def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=N
     if word.word == 'волга':
         word = morph.parse('волга')[1]
 
+    # # для прилагательных немного другое склонение
+    # if 'ADJF' in word.tag:
+    #     if 'accs' in tags:
+    #         tags.append('nomn')
+
     # словосочетания пока не парсим от слова совсем
     if len(word.word.split()) > 1:
         raise Exception('can not declensify more than 1 word at once!')
