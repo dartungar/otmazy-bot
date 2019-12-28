@@ -37,11 +37,10 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otgovorki Bot v 0.1 alpha
+    reply_text = f''' Otgovorki Bot v 0.2 alpha
     Привет, {username}!
-    Я - альфа-версия бота для генерации отговорок отмазок.
-    Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
-    Потом поумнею и начну выдавать что-то, похожее на реальность.
+    Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
+    Иногда ошибаюсь - зато смешно ;)
     Справка по моим командам: /help .
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
@@ -221,10 +220,10 @@ def main():
     generate_study_handler = CommandHandler('study', generate_study)
     dp.add_handler(generate_study_handler)
 
-    generate_official_handler = CommandHandler('official', generate_study)
+    generate_official_handler = CommandHandler('official', generate_official)
     dp.add_handler(generate_official_handler)
 
-    generate_health_handler = CommandHandler('health', generate_study)
+    generate_health_handler = CommandHandler('health', generate_health)
     dp.add_handler(generate_health_handler)
 
     updater.start_polling()
