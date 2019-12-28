@@ -36,7 +36,7 @@ def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_s
 
 if __name__ == '__main__':
 
-    df = pd.read_excel('otmazy_words.xlsx', index_col=0, sheet_name=None)
+    df = pd.read_excel('otgovorki.xlsx', index_col=0, sheet_name=None)
     morph = pymorphy2.MorphAnalyzer()
 
     for i in range(10):

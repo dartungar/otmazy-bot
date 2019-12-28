@@ -26,7 +26,7 @@ logger.info('initialized Morph')
 
 keyboard = ReplyKeyboardMarkup([['/contexts', '/random'], ['/start', '/help']], True)
 
-context_keyboard = ReplyKeyboardMarkup([['/personal', '/work', '/family', '/study'], ['/random', '/back_to_menu']], True)
+context_keyboard = ReplyKeyboardMarkup([[ '/work', '/study', '/official'], ['/personal', '/family', '/health'], ['/random', '/back_to_menu']], True)
 
 
 def error(update, context):
@@ -39,7 +39,7 @@ def start(update, context):
 
     reply_text = f''' Otgovorki Bot v 0.1 alpha
     Привет, {username}!
-    Я - альфа-версия бота для генерации отмазок.
+    Я - альфа-версия бота для генерации отговорок отмазок.
     Сейчас я могу генерировать полуосмысленные (зато забавные) отмазки.
     Потом поумнею и начну выдавать что-то, похожее на реальность.
     Справка по моим командам: /help .
@@ -61,7 +61,7 @@ def go_to_contexts(update, context):
 
 
 def go_to_main_menu(update, context):
-    update.message.reply_text(' ', reply_markup=keyboard)
+    update.message.reply_text('🆗', reply_markup=keyboard)
 
 # def generate_with_context(update, context, cntxt):
 #     try:
@@ -156,6 +156,29 @@ def generate_study(update, context):
     #text = 'a reply'
     update.message.reply_text(text, reply_markup=context_keyboard)
 
+def generate_official(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='official')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about official')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=context_keyboard)
+
+
+def generate_health(update, context):
+    try:
+        text = test_constructor(words=df, morph=morph, context='health')
+        #text = random.randint(1, 10)
+        logger.info('generated not serious text')
+    except:
+        text = '¯\_(ツ)_/¯'
+        logger.warning('failed to generate text about health')
+    #text = 'a reply'
+    update.message.reply_text(text, reply_markup=context_keyboard)
+
 
 def main():
 
@@ -198,6 +221,11 @@ def main():
     generate_study_handler = CommandHandler('study', generate_study)
     dp.add_handler(generate_study_handler)
 
+    generate_official_handler = CommandHandler('official', generate_study)
+    dp.add_handler(generate_official_handler)
+
+    generate_health_handler = CommandHandler('health', generate_study)
+    dp.add_handler(generate_health_handler)
 
     updater.start_polling()
     updater.idle()
