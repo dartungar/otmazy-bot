@@ -112,7 +112,7 @@ def generate_personal(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='personal')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about personal')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about personal')
@@ -124,7 +124,7 @@ def generate_work(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='work')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about work')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about work')
@@ -136,7 +136,7 @@ def generate_family(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='family')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about family')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about family')
@@ -148,7 +148,7 @@ def generate_study(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='study')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about study')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about study')
@@ -159,7 +159,7 @@ def generate_official(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='official')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about official')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about official')
@@ -171,7 +171,7 @@ def generate_health(update, context):
     try:
         text = test_constructor(words=df, morph=morph, context='health')
         #text = random.randint(1, 10)
-        logger.info('generated not serious text')
+        logger.info('generated text about health')
     except:
         text = '¯\_(ツ)_/¯'
         logger.warning('failed to generate text about health')
