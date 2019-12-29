@@ -37,7 +37,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otgovorki Bot v 0.2 alpha
+    reply_text = f''' Otgovorki Bot v 0.2.1 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
     Иногда ошибаюсь - зато смешно ;)

@@ -195,7 +195,7 @@ class Noun():
      
 
 class BeginningSpice():
-    def __init__(self, words, morph, tense='pres', context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, tense='pres', has_greeting=False, context=None, min_seriousness=None, max_seriousness=None):
         beginnings = words['beginning'].fillna(value=0)
 
         if context:
@@ -204,25 +204,35 @@ class BeginningSpice():
         if min_seriousness:
             beginnings = beginnings[beginnings.seriousness>=min_seriousness]
         if max_seriousness:
-            beginnings = beginnings[beginnings.seriousness<=max_seriousness]        
+            beginnings = beginnings[beginnings.seriousness<=max_seriousness]  
+
         self.info = beginnings[(beginnings.tense==tense)|(beginnings.tense=='all')].sample()
-        self.word = self.info.iloc[0, 0]
-        if self.info.iloc[0, 1]:
+        self.word = self.info.word.iloc[0]
+
+        if self.info.comma_after.iloc[0]:
             self.word += ','
+        elif self.info.type.iloc[0] == 'sentence':
+            self.word += '.'
+
 
 
 class Greeting():
-    def __init__(self, words, morph, tense='pres', type='beginning', context=None):
-        self.word = random.choice([
-            'Привет',
-            'Приветствую',
-            'Салам',
-            'Хай',
-            'Здравствуй',
-            'Здравствуйте',
-            '',
-            '',
-        ])
+    def __init__(self, words, morph, tense='pres', type='beginning', context=None,  min_seriousness=None, max_seriousness=None):
+        greetings = words['greeting'].fillna(value=0)
+
+        if context:
+            greetings = greetings[greetings[get_context_column_name(context)]==True]
+
+        if min_seriousness:
+            greetings = greetings[greetings.seriousness>=min_seriousness]
+        if max_seriousness:
+            greetings = greetings[greetings.seriousness<=max_seriousness]  
+
+        self.info = greetings[(greetings.tense==tense)|(greetings.tense=='all')].sample()
+        self.word = self.info.word.iloc[0].capitalize()
+        self.word += '.'
+        
+
 
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности

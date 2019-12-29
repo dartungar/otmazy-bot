@@ -2,7 +2,7 @@
 # one function to find them
 # one to arrange them all
 # and in the sentence bind them
-from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, BeginningSpice, EndingSentence
+from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, Greeting, BeginningSpice, EndingSentence
 from helpers import declensify, get_rules, needs_capitalizing
 import random
 
@@ -14,7 +14,8 @@ def constructor(words, morph, tense='futr', context=None,
                 subj_datv=False, 
                 has_predicate_spice=True, 
                 to_be=False, 
-                has_beginning=False, 
+                has_beginning=False,
+                has_greeting=False, 
                 has_ending=False):
     
     word_list = []
@@ -111,20 +112,30 @@ def constructor(words, morph, tense='futr', context=None,
 
         word_list.append(word3.word)
 
+    # запятая в конце основного предложения
+    word_list.append('.')
 
-    # beginning spice
-    beginning = ''
+
+    # beginning spice "Тут такое дело..."
     if has_beginning:
         beginning = BeginningSpice(words=words, morph=morph, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
+        if beginning.endswith('.'):
+            word_list[0] = word_list[0].capitalize()
         word_list.insert(0, beginning)
-
-    word_list.append('.')
+        
 
     
-            
+    #greeting "Привет"
+    if has_greeting:
+        greeting = Greeting(words=words, morph=morph, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
+        #beginning = declensify_text(morph, beginning, subject, tense, context)
+        word_list[0] = word_list[0].capitalize()
+        word_list.insert(0, greeting)     
+   
 
-    # ending sentence
+
+    # ending sentence "Извините меня, пожалуйста"
     if has_ending:
         end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)

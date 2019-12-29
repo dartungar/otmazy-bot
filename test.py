@@ -19,7 +19,7 @@ def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_s
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
                         #has_object=random.randint(0, 1),
-                        #has_obj_spice=1,#random.randint(0, 1),
+                        has_greeting=random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
                         has_ending=random.randint(0, 1),
                         min_seriousness=min_seriousness,
@@ -43,5 +43,5 @@ if __name__ == '__main__':
         #temp = create_random_template()
         #text = f'{str(temp[0])} {temp[1].text}'
         #str(create_random_template()[0]) +' '+  create_random_template()[1].text
-        text = test_constructor(words=df, morph=morph, context='study')
+        text = test_constructor(words=df, morph=morph, context='work')
         print(text)
