@@ -162,7 +162,11 @@ class Noun():
         if max_seriousness:
             nouns = nouns[nouns.seriousness<=max_seriousness]
         
-        self.info = nouns[nouns.type==noun_type].sample()   
+        try:
+            self.info = nouns[nouns.type==noun_type].sample()   
+        except:
+            print(f'could not find noun of type {noun_type} with context {context}!')
+            self.info = nouns.sample() 
 
         n = morph.parse(self.info.iloc[0, 0])[0]
         #print(f'type: {noun_type}, case: {case}')
