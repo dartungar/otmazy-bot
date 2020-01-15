@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN_OTMAZY')
 
-df = pd.read_excel('otmazy_words.xlsx', index_col=0, sheet_name=None)
+df = pd.read_excel('otgovorki.xlsx', index_col=0, sheet_name=None)
 logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
@@ -37,7 +37,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otgovorki Bot v 0.2.1 alpha
+    reply_text = f''' Otgovorki Bot v 0.2.2 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
     Иногда ошибаюсь - зато смешно ;)

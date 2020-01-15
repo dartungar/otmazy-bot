@@ -2,21 +2,25 @@
 # выбор типов, падежей итд
 import random
 
+parse_exceptions = {
+    'вещи': 1,
+    'море': 5,
+    'страховой': 5,
+    'Волга': 1,
+    'Анастасия': 2,   
+}
+
 
 # TODO: выделить в отдельные функции genderify, timify, personify, multify
 def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=None):
     word = word_parsed
-    # SOME THINGS JUST CANT BE DONE RIGHT
-    if word.word == 'море' or word.word == 'мор':
-        word = morph.parse('море')[5]
-        #print(f'exception море! {word}')
-    if word.word == 'волга':
-        word = morph.parse('волга')[1]
+    # # SOME THINGS JUST CANT BE DONE RIGHT
+    # if word.word == 'море' or word.word == 'мор':
+    #     word = morph.parse('море')[5]
+    #     #print(f'exception море! {word}')
+    # if word.word == 'волга':
+    #     word = morph.parse('волга')[1]
 
-    # # для прилагательных немного другое склонение
-    # if 'ADJF' in word.tag:
-    #     if 'accs' in tags:
-    #         tags.append('nomn')
 
     # словосочетания пока не парсим от слова совсем
     if len(word.word.split()) > 1:
@@ -48,16 +52,22 @@ def declensify_text(morph, text, tags, tense='pres'):
     text_declensified = ''
     words_parsed = []
     for word in text.split(' '):
-        words_parsed.append(morph.parse(word)[0])
+        words_parsed.append(parse(word, parse_exceptions, morph=morph))
 
     if len(words_parsed) == 1:
         text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense).word
 
     elif len(words_parsed) == 2:
-        text_declensified += declensify(morph, words_parsed[0], tags=tags, tense=tense).word + ' '
+        text_declensified = declensify(morph, words_parsed[0], tags=tags, tense=tense).word + ' '
+
         # "Черное море"
         if 'ADJF' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:
+            # прилагательное мужского пола при винительном падеже не склоняется!
+            if 'accs' in tags and 'femn' not in words_parsed[0].tag:
+                tags.remove('accs')
+                text_declensified = declensify(morph, words_parsed[0], tags=tags, tense=tense).word + ' '
             text_declensified += declensify(morph, words_parsed[1], tags=tags, tense=tense).word
+        
         if 'NOUN' in words_parsed[0].tag and 'NOUN' in words_parsed[1].tag:        
             text_declensified += words_parsed[1].word
 
@@ -88,7 +98,7 @@ def needs_capitalizing(morph, word):
     if len(word.split()) > 1:
         word = word.split()[0]
 
-    word_parsed = morph.parse(word)[0]
+    word_parsed = parse(word, parse_exceptions, morph=morph)#morph.parse(word)[0]
     for grm in ['Name', 'Geox']:
         if grm in word_parsed.tag:
             return True
@@ -106,4 +116,18 @@ def get_rules(words, predicate):
 def get_context_column_name(context):
     ccn = 'context_'+context
     return ccn
+
+
+# обходим неумность парсера
+def parse(word, parse_exceptions, morph=None):
+    if not morph:
+        morph = pymorphy2.MorphAnalyzer()
+
+    parse_index = 0
+    if word in parse_exceptions.keys():
+        parse_index = parse_exceptions[word]
+
+    parsed = morph.parse(word)[parse_index]
+    return parsed
+
 

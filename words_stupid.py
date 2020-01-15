@@ -1,6 +1,6 @@
 # "глупые" классы - принимают готовые параметры для подбора слова
 import random
-from helpers import declensify, declensify_text, get_context_column_name, needs_capitalizing
+from helpers import declensify, declensify_text, get_context_column_name, needs_capitalizing, parse, parse_exceptions
 
 
 # существительное
@@ -24,17 +24,17 @@ class Subject():
         self.is_myself = subject_is_myself
         self.info = subjects[subjects.is_myself==subject_is_myself].sample()
         self.word = self.info.iloc[0, 0]
-        self.parsed = morph.parse(self.word)[0]
+        self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         self.num_of_words = len(self.word.split(' '))
         if self.num_of_words == 1:
             if datv:
                 self.word = declensify(morph, self.parsed, ['datv']).word
-                self.parsed = morph.parse(self.word)[0]
+                self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         elif self.num_of_words == 2:
             if datv:
                 self.word = declensify_text(morph, self.word, ['datv'])
                 #print(self.word)
-            self.parsed = morph.parse(self.word.split(' ')[1])[0]     
+            self.parsed = parse(self.word.split(' ')[1], parse_exceptions, morph=morph) #morph.parse(self.word.split(' ')[1])[0]     
         else:
             raise Exception('lenght of Subject > 2 words!')
 
@@ -59,7 +59,7 @@ class PredicateSpice():
     def __init__(self, words, morph, tense='pres', subj=None, to_be=False, context=None):
 
         #subj = morph.parse(subj.word)[0]
-        tobe = morph.parse('быть')[0]
+        tobe = parse('быть', parse_exceptions, morph=morph) #morph.parse('быть')[0]
 
         self.word = ''
 
@@ -75,7 +75,7 @@ class PredicateSpice():
                     self.word = random.choice(['нужно', 'надо', 'необходимо', 'придется', 'давно пора', 'позарез надо', 'припекло'])
                 elif tense == 'past':
                     self.word = random.choice(['нужно было', 'надо было', 'необходимо было', 'пришлось', 'давно пора было', 'позарез надо было', 'припекло', 'пришлось'])
-                self.parsed = morph.parse(self.word)[0]
+                self.parsed = parse(self.word, parse_exceptions, morph=morph) #№morph.parse(self.word)[0]
 
         # я буду, он будет
         elif to_be == True and tense == 'futr':
@@ -87,7 +87,8 @@ class PredicateSpice():
             if to_be:
                 pass
             else:
-                n = morph.parse(random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться', 'решить', 'решиться', 'собраться', 'запланировать']))[0]
+                spice_word = random.choice(['собираться', 'планировать', 'хотеть', 'обещать', 'пообещать', 'обязаться', 'поклясться', 'решить', 'решиться', 'собраться', 'запланировать'])
+                n = parse(spice_word, parse_exceptions, morph=morph)
                 # TODO: избавиться от необходимости передавать подлежащее
                 n = declensify(morph, n, tags=[subj.person, subj.plural, subj.gender], tense='past')         
                 self.word = n.word
@@ -133,7 +134,7 @@ class Predicate():
         else:
             self.can_be_composite = False
 
-        self.parsed = morph.parse(self.info.word.iloc[0])[0]
+        self.parsed = parse(self.info.word.iloc[0], parse_exceptions, morph=morph) #morph.parse(self.info.word.iloc[0])[0]
         self.word = self.parsed.word
 
 
@@ -142,7 +143,7 @@ class NounSpice():
     def __init__(self, words, morph, noun_parsed=None):
         if ('anim' in noun_parsed.tag and 'Name' not in noun_parsed.tag and 'Geox' not in noun_parsed.tag) or 'anim' not in noun_parsed.tag:
             self.word = random.choice(['мой', 'свой'])
-            self.parsed = morph.parse(self.word)[0]
+            self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         else:
             self.word = ''
 
@@ -168,7 +169,7 @@ class Noun():
             print(f'could not find noun of type {noun_type} with context {context}!')
             self.info = nouns.sample() 
 
-        n = morph.parse(self.info.iloc[0, 0])[0]
+        n =  parse(self.info.iloc[0, 0], parse_exceptions, morph=morph) #morph.parse(self.info.iloc[0, 0])[0]
         #print(f'type: {noun_type}, case: {case}')
         self.word = n.word
         
@@ -181,18 +182,21 @@ class Noun():
             #print(self.word)
             self.word = declensify_text(morph, self.word, [case])
             #print(self.word)
-            self.parsed = morph.parse(self.word.split(' ')[1])[0]
+            self.parsed = parse(self.word.split(' ')[1], parse_exceptions, morph=morph) #morph.parse(self.word.split(' ')[1])[0]
 
         if '1per' not in self.parsed.tag and '2per' not in self.parsed.tag: 
             self.person = '3per'
+
         self.plural = 'sing'
         for plur in ['sing', 'plur']:
             if plur in self.parsed.tag:
                 self.plural = plur
+        
         self.gender = 'masc'
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
+        
         self.needs_capitalizing = self.info.needs_capitalizing.iloc[0]
         if self.needs_capitalizing:
             self.word = self.word.capitalize()
