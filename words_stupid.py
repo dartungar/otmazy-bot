@@ -261,6 +261,7 @@ class EndingSentence():
             self.info = sentences[((sentences.tense==tense)|(sentences.tense=='all'))&(sentences.type==type)&(sentences.is_custom==True)].sample()
             self.word = self.info.sentence.iloc[0]
 
+            # если подставляемое слово в начале предложения, надо его капитализовать
             custom_word_at_beginning = False
             if self.word[0] == '<':
                 custom_word_at_beginning = True

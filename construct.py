@@ -26,8 +26,9 @@ def constructor(words, morph, tense='futr', context=None,
 
     if 'Name' in subject.parsed.tag:
         unexplained_person = subject
-
-    word_list.append(subject.word)
+        word_list.append(subject.word.capitalize())
+    else:
+        word_list.append(subject.word)
 
     # predicate spice
     # TODO: этой поебени сильно нужен реворк! возможно, в таблицу соответствий
