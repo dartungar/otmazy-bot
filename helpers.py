@@ -7,19 +7,18 @@ parse_exceptions = {
     'море': 5,
     'страховой': 5,
     'Волга': 1,
-    'Анастасия': 2,   
+    'Анастасия': 2,  
+    'свекрови': 1,
+    'матери': 6,
+    'бате': 1,
+    'ярославу': 1,
+    'саше': 12,
+    'юле': 4, 
 }
 
 
 # TODO: выделить в отдельные функции genderify, timify, personify, multify
 def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=None):
-    # # SOME THINGS JUST CANT BE DONE RIGHT
-    # if word.word == 'море' or word.word == 'мор':
-    #     word = morph.parse('море')[5]
-    #     #print(f'exception море! {word}')
-    # if word.word == 'волга':
-    #     word = morph.parse('волга')[1]
-
 
     # словосочетания парсим функцией declensify_text()
     if len(word_parsed.word.split()) > 1:
@@ -41,10 +40,6 @@ def declensify(morph, word_parsed, tags=None, tense='pres', case=None, context=N
         if tense == 'futr' and 'NOUN' in tags and ('3per' and '1per') not in tags:
             #print('ding')
             word_parsed = word.inflect({'3per'})
-
-    # for grm in ['Name', 'Geox']:
-    #     if grm in word_parsed.tag:
-    #         word_parsed.word = word_parsed.word.capitalize()
 
     return word_parsed
 
