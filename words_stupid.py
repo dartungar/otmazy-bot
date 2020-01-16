@@ -26,12 +26,16 @@ class Subject():
         self.word = self.info.iloc[0, 0]
         self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         self.num_of_words = len(self.word.split(' '))
+        # костыль - pymorphy2 неправильно парсит некоторые склоненные в дательный падеж слова
+        # типа "матери", "свекрови", "софии" итд
+        # отсюда глюки в PredicateSpice, который ориентируется на результаты повторного парсинга
+        self.is_datv = datv
         if self.num_of_words == 1:
-            if datv:
+            if self.is_datv:
                 self.word = declensify(morph, self.parsed, ['datv']).word
                 self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         elif self.num_of_words == 2:
-            if datv:
+            if self.is_datv:
                 self.word = declensify_text(morph, self.word, ['datv'])
                 #print(self.word)
             self.parsed = parse(self.word.split(' ')[1], parse_exceptions, morph=morph) #morph.parse(self.word.split(' ')[1])[0]     
@@ -56,7 +60,7 @@ class Subject():
 # TODO: реворкнуть в выбор из БД PredicateSpice?
 # TODO: учитывать время
 class PredicateSpice():
-    def __init__(self, words, morph, tense='pres', subj=None, to_be=False, context=None):
+    def __init__(self, words, morph, tense='pres', subj=None, subj_datv=False, to_be=False, context=None):
 
         #subj = morph.parse(subj.word)[0]
         tobe = parse('быть', parse_exceptions, morph=morph) #morph.parse('быть')[0]
@@ -64,7 +68,7 @@ class PredicateSpice():
         self.word = ''
 
         # мне нужно, мне нужно будет, тёще придется
-        if 'datv' in subj.parsed.tag:
+        if subj.is_datv:
             if to_be:
                 if tense == 'futr':
                     self.word = f"{random.choice(['нужно', 'надо', 'необходимо'])} {tobe.inflect({tense, '3per', subj.plural}).word}"
