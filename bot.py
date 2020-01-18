@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-
+MAX_RETRY = 10
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN_OTMAZY')
 
@@ -37,7 +37,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otgovorki Bot v 0.2.2 alpha
+    reply_text = f''' Otgovorki Bot v 0.2.3 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
     Иногда ошибаюсь - зато смешно ;)
@@ -75,108 +75,120 @@ def go_to_main_menu(update, context):
 
 
 def generate_random(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph)
-        logger.info('generated text')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text')
-    update.message.reply_text(text, reply_markup=keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph)
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_serious(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, min_seriousness=3)
-        #text = random.randint(1, 10)
-        logger.info('generated serious text')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate serious text')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, min_seriousness=3)
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_not_serious(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, max_seriousness=3)
-        #text = random.randint(1, 10)
-        logger.info('generated not serious text')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate not serious text')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, max_seriousness=3)
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_personal(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='personal')
-        #text = random.randint(1, 10)
-        logger.info('generated text about personal')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about personal')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='personal')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_work(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='work')
-        #text = random.randint(1, 10)
-        logger.info('generated text about work')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about work')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='work')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_family(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='family')
-        #text = random.randint(1, 10)
-        logger.info('generated text about family')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about family')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='family')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_study(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='study')
-        #text = random.randint(1, 10)
-        logger.info('generated text about study')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about study')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='study')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
+
 
 def generate_official(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='official')
-        #text = random.randint(1, 10)
-        logger.info('generated text about official')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about official')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='official')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def generate_health(update, context):
-    try:
-        text = test_constructor(words=df, morph=morph, context='health')
-        #text = random.randint(1, 10)
-        logger.info('generated text about health')
-    except:
-        text = '¯\_(ツ)_/¯'
-        logger.warning('failed to generate text about health')
-    #text = 'a reply'
-    update.message.reply_text(text, reply_markup=context_keyboard)
+    for i in range(MAX_RETRY):
+        while True:
+            try:
+                text = test_constructor(words=df, morph=morph, context='health')
+                logger.info('generated text')
+                update.message.reply_text(text, reply_markup=keyboard)
+            except:
+                logger.warning('failed to generate text')
+                continue
+            break
 
 
 def main():
