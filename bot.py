@@ -76,118 +76,118 @@ def go_to_main_menu(update, context):
 
 def generate_random(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph)
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph)
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_serious(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, min_seriousness=3)
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, min_seriousness=3)
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_not_serious(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, max_seriousness=3)
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, max_seriousness=3)
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_personal(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='personal')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='personal')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_work(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='work')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='work')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_family(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='family')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='family')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_study(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='study')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='study')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_official(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='official')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='official')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
 def generate_health(update, context):
     for i in range(MAX_RETRY):
-        while True:
-            try:
-                text = test_constructor(words=df, morph=morph, context='health')
-                logger.info('generated text')
-                update.message.reply_text(text, reply_markup=keyboard)
-            except:
-                logger.warning('failed to generate text')
-                continue
+        try:
+            text = test_constructor(words=df, morph=morph, context='health')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
             break
 
 
