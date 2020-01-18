@@ -118,7 +118,7 @@ def generate_personal(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='personal')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
@@ -131,7 +131,7 @@ def generate_work(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='work')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
@@ -144,7 +144,7 @@ def generate_family(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='family')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
@@ -157,7 +157,7 @@ def generate_study(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='study')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
@@ -170,7 +170,7 @@ def generate_official(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='official')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
@@ -183,7 +183,7 @@ def generate_health(update, context):
         try:
             text = test_constructor(words=df, morph=morph, context='health')
             logger.info('generated text')
-            update.message.reply_text(text, reply_markup=keyboard)
+            update.message.reply_text(text, reply_markup=context_keyboard)
         except:
             logger.warning('failed to generate text')
             continue
