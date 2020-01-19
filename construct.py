@@ -22,7 +22,7 @@ def constructor(words, morph, tense='futr', context=None,
     unexplained_person = None
 
     # subject
-    subject = Subject(words=words, morph=morph, subject_is_myself=subject_is_myself, datv=subj_datv, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+    subject = Subject(words=words, morph=morph, datv=subj_datv, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
 
     if 'Name' in subject.parsed.tag:
         unexplained_person = subject
@@ -155,7 +155,7 @@ def constructor(words, morph, tense='futr', context=None,
         #cwp = None
         has_cwp = random.randint(0, 1)
         if has_cwp:
-            if not subject_is_myself:
+            if not subject.is_myself:
                 cwp = subject.parsed #TODO: добавить ExplainSentence
             elif word1:
                 cwp = word1.parsed

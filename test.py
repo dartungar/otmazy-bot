@@ -9,12 +9,10 @@ from helpers import create_text_from_list, needs_capitalizing
 
 def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_seriousness=None, context=None):
     tense = random.choice(['past', 'futr']) 
-    subjim = random.randint(0, 1)
 
     word_list = constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
-                        subject_is_myself=subjim, 
                         subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
@@ -41,5 +39,5 @@ if __name__ == '__main__':
 
     for i in range(10):
 
-        text = test_constructor(words=df, morph=morph, context=None)
+        text = test_constructor(words=df, morph=morph, context='study')
         print(text)

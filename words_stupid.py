@@ -5,13 +5,15 @@ from helpers import declensify, declensify_text, get_context_column_name, needs_
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, subject_is_myself=True, datv=False, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, datv=False, context=None, min_seriousness=None, max_seriousness=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
         # возможно это уже совсем другой шаблон
 
-        subjects = words['subj'].fillna(value=0)
+        subjects = words['noun'].fillna(value=0)
+        subjects = subjects[subjects.type=='person']
+        
 
         if context:
             subjects = subjects[subjects[get_context_column_name(context)]==True]
@@ -21,9 +23,10 @@ class Subject():
         if max_seriousness:
             subjects = subjects[subjects.seriousness<=max_seriousness]
 
-        self.is_myself = subject_is_myself
-        self.info = subjects[subjects.is_myself==subject_is_myself].sample()
+        
+        self.info = subjects.sample()
         self.word = self.info.iloc[0, 0]
+        self.is_myself = 1 if self.word == 'я' else 0
         self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         self.num_of_words = len(self.word.split(' '))
         # костыль - pymorphy2 неправильно парсит некоторые склоненные в дательный падеж слова
