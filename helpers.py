@@ -17,6 +17,7 @@ parse_exceptions = {
     'спина':1,
     'юлия':2, 
     'дочери': 2,
+    'ане': 2,
 }
 
 
@@ -131,5 +132,20 @@ def parse(word, parse_exceptions, morph=None):
 
     parsed = morph.parse(word)[parse_index]
     return parsed
+
+
+def make_rules_nonsense(rules):
+    noun_types = ['person', 'thing', 'event', 'project', 'place', 'place_open', 'illness']
+    if rules.word1_type.iloc[0]:
+        rules.word1_type.iloc[0] = random.choice(noun_types)
+
+    if rules.word2_type.iloc[0]:
+        rules.word2_type.iloc[0] = random.choice(noun_types)
+
+    if rules.word2_type.iloc[0]:
+        rules.word2_type.iloc[0] = random.choice(noun_types)
+
+    return rules
+
 
 

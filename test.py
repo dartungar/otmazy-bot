@@ -7,16 +7,16 @@ from helpers import create_text_from_list, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
-def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_seriousness=None, context=None):
+def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_seriousness=None, context=None):
     tense = random.choice(['past', 'futr']) 
 
     word_list = constructor(words=words, 
                         morph=morph, 
                         tense=tense, 
+                        is_nonsense=is_nonsense,
                         subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
-                        #has_object=random.randint(0, 1),
                         has_greeting=random.randint(0, 1),
                         has_beginning=random.randint(0, 1), 
                         has_ending=random.randint(0, 1),
@@ -26,7 +26,6 @@ def test_constructor(words, morph, seriousness=None, min_seriousness=None, max_s
                         )
 
 
-    # костыль поганый. FIXME
     text = create_text_from_list(morph, word_list)
 
     return text
@@ -38,6 +37,6 @@ if __name__ == '__main__':
     morph = pymorphy2.MorphAnalyzer()
 
     for i in range(10):
-
-        text = test_constructor(words=df, morph=morph, context='study')
-        print(text)
+        excuse_context = random.choice(['family', 'personal', 'health', 'leisure', 'work', 'study', 'official'])
+        text = test_constructor(words=df, morph=morph, context=excuse_context)
+        print(f'{excuse_context}: {text}')

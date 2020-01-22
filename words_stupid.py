@@ -35,7 +35,7 @@ class Subject():
         self.is_datv = datv
         if self.num_of_words == 1:
             if self.is_datv:
-                self.word = declensify(morph, self.parsed, ['datv']).word
+                self.word = declensify_text(morph, self.word, ['datv'])
                 self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         elif self.num_of_words == 2:
             if self.is_datv:

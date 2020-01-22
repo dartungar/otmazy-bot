@@ -3,11 +3,11 @@
 # one to arrange them all
 # and in the sentence bind them
 from words_stupid import Subject, Predicate, PredicateSpice, Noun, NounSpice, Greeting, BeginningSpice, EndingSentence
-from helpers import declensify, get_rules, needs_capitalizing
+from helpers import declensify, get_rules, needs_capitalizing, make_rules_nonsense
 import random
 
 
-def constructor(words, morph, tense='futr', context=None, 
+def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
                 min_seriousness=None,
                 max_seriousness=None,
                 subject_is_myself=True, 
@@ -18,6 +18,7 @@ def constructor(words, morph, tense='futr', context=None,
                 has_greeting=False, 
                 has_ending=False):
     
+
     word_list = []
     unexplained_person = None
 
@@ -32,7 +33,6 @@ def constructor(words, morph, tense='futr', context=None,
 
     # predicate spice
     # TODO: этой поебени сильно нужен реворк! возможно, в таблицу соответствий
-    # TODO: рандом с весом на to_be
     predicate_spice = ''
     pred_aspc = 'impf'
     # фиксим несоответствие, если задали кривые вводные параметры
@@ -57,6 +57,8 @@ def constructor(words, morph, tense='futr', context=None,
 
     # TODO: переработать блок сказуемого чтобы не было нужды в этой хуйне
     rules = get_rules(words, predicate)
+    if is_nonsense:
+        rules = make_rules_nonsense(rules)
 
 
     # склоняем сказуемое, если нет спайса
@@ -167,4 +169,6 @@ def constructor(words, morph, tense='futr', context=None,
     word_list[0] = word_list[0].capitalize()
 
     return word_list
+
+
 

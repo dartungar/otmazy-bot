@@ -24,9 +24,9 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/contexts', '/random'], ['/start', '/help']], True)
+keyboard = ReplyKeyboardMarkup([['/contexts', '/random', '/crazy', '/nonsense'], ['/start', '/help']], True)
 
-context_keyboard = ReplyKeyboardMarkup([[ '/work', '/study', '/official'], ['/personal', '/family', '/health'], ['/random', '/back_to_menu']], True)
+context_keyboard = ReplyKeyboardMarkup([[ '/work', '/study', '/health'], ['/personal', '/family', '/leisure'], ['/random', '/crazy', '/back']], True)
 
 
 def error(update, context):
@@ -37,7 +37,7 @@ def error(update, context):
 def start(update, context):
     username = update.message.from_user.username
 
-    reply_text = f''' Otgovorki Bot v 0.2.4 alpha
+    reply_text = f''' Otgovorki Bot v 0.2.7 alpha
     Привет, {username}!
     Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
     Иногда ошибаюсь - зато смешно ;)
@@ -50,7 +50,9 @@ def show_help(update, context):
     reply_text = f''' 
     /help - помощь по командам
     /contexts - отговорки по контекстам (работа, учеба, личные дела) alpha
-    /random - случайная отговорка
+    /random - отговорка в случайном контексте
+    /crazy - странная отговорка
+    /nonsense - полный бред!
     '''
     update.message.reply_text(reply_text, reply_markup=keyboard)
 
@@ -75,9 +77,37 @@ def go_to_main_menu(update, context):
 
 
 def generate_random(update, context):
+    excuse_context = random.choice(['family', 'personal', 'health', 'leisure', 'work', 'study', 'official'])
+    for i in range(MAX_RETRY):
+        try:
+            text = test_constructor(words=df, morph=morph, context=excuse_context)
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
+            break
+
+
+def generate_crazy(update, context):
     for i in range(MAX_RETRY):
         try:
             text = test_constructor(words=df, morph=morph)
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
+            break
+
+
+
+def generate_nonsense(update, context):
+    for i in range(MAX_RETRY):
+        try:
+            text = test_constructor(words=df, morph=morph, is_nonsense=True)
             logger.info('generated text')
             update.message.reply_text(text, reply_markup=keyboard)
         except:
@@ -191,6 +221,19 @@ def generate_health(update, context):
             break
 
 
+def generate_leisure(update, context):
+    for i in range(MAX_RETRY):
+        try:
+            text = test_constructor(words=df, morph=morph, context='leisure')
+            logger.info('generated text')
+            update.message.reply_text(text, reply_markup=context_keyboard)
+        except:
+            logger.warning('failed to generate text')
+            continue
+        else:
+            break
+
+
 def main():
 
     updater = Updater(BOT_TOKEN, use_context=True)
@@ -208,11 +251,17 @@ def main():
     go_to_contexts_handler = CommandHandler('contexts', go_to_contexts)
     dp.add_handler(go_to_contexts_handler)
 
-    go_to_main_menu_handler = CommandHandler('back_to_menu', go_to_main_menu)
+    go_to_main_menu_handler = CommandHandler('back', go_to_main_menu)
     dp.add_handler(go_to_main_menu_handler)
 
     generate_random_handler = CommandHandler('random', generate_random)
     dp.add_handler(generate_random_handler)
+
+    generate_crazy_handler = CommandHandler('crazy', generate_crazy)
+    dp.add_handler(generate_crazy_handler)
+
+    generate_nonsense_handler = CommandHandler('nonsense', generate_nonsense)
+    dp.add_handler(generate_nonsense_handler)
 
     generate_serious_handler = CommandHandler('serious', generate_serious)
     dp.add_handler(generate_serious_handler)
@@ -237,6 +286,12 @@ def main():
 
     generate_health_handler = CommandHandler('health', generate_health)
     dp.add_handler(generate_health_handler)
+    
+    generate_leisure_handler = CommandHandler('leisure', generate_leisure)
+    dp.add_handler(generate_leisure_handler)
+
+
+    
 
     updater.start_polling()
     updater.idle()
