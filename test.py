@@ -7,8 +7,9 @@ from helpers import create_text_from_list, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
-def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_seriousness=None, context=None):
-    tense = random.choice(['past', 'futr']) 
+def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_seriousness=None, context=None, subj_sex=None, tense=None):
+    if not tense:
+        tense = random.choice(['past', 'futr'])     
 
     word_list = constructor(words=words, 
                         morph=morph, 
@@ -22,7 +23,8 @@ def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_
                         has_ending=random.randint(0, 1),
                         min_seriousness=min_seriousness,
                         max_seriousness=max_seriousness,
-                        context=context
+                        context=context,
+                        subj_sex = subj_sex
                         )
 
 

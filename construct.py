@@ -16,14 +16,15 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
                 to_be=False, 
                 has_beginning=False,
                 has_greeting=False, 
-                has_ending=False):
+                has_ending=False,
+                subj_sex=None):
     
 
     word_list = []
     unexplained_person = None
 
     # subject
-    subject = Subject(words=words, morph=morph, datv=subj_datv, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+    subject = Subject(words=words, morph=morph, datv=subj_datv, context=context, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
 
     if 'Name' in subject.parsed.tag:
         unexplained_person = subject
@@ -140,7 +141,7 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
 
     # ending sentence "Извините меня, пожалуйста"
     if has_ending:
-        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        end_sentence = EndingSentence(words=words, morph=morph, tense=tense, type='ending', context=context, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(end_sentence.word)
         word_list.append('.')
@@ -148,7 +149,7 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
 
     # если вбросили какое-то имя - даем подобие объяснения
     if unexplained_person:
-        explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', context=context, custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+        explanation = EndingSentence(words=words, morph=morph, tense=tense, type='explanation', context=context, subj_sex=subj_sex, custom_word_parsed=unexplained_person.parsed, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
         #print(end_sentence.word)
         word_list.append(explanation.word)
         word_list.append('.')
@@ -161,7 +162,7 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
                 cwp = subject.parsed #TODO: добавить ExplainSentence
             elif word1:
                 cwp = word1.parsed
-            explanation = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+            explanation = EndingSentence(words=words, morph=morph, tense=tense, type='ending', custom_word_parsed=cwp, context=context, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
             word_list.append(explanation.word)
             word_list.append('.')
             

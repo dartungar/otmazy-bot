@@ -2,48 +2,34 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import *
+import os
 
-engine = create_engine('sqlite:///demo.db')
 Base = declarative_base()
+engine = create_engine(os.environ[' '])
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
 
 
-class Noun(Base):
-    __tablename__ = 'nouns'
-    Id = Column(Integer, primary_key=True)
-    Word = Column(String)
-    Type = Column(String)
-    TypeAlt = Column(String)
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    tense = Column(String)
+    gender = Column(String)
 
 
-class Verb(Base):
-    __tablename__ = 'verbs'
-    Id = Column(Integer, primary_key=True)
-    Word = Column(String)
-    NounType = Column(String)
-    NounTypeAlt = Column(String)
-    CaseObj = Column(String)
-    Aspc = Column(String)   
+if not engine.dialect.has_table(engine, 'users'):
+    Base.metadata.create_all(engine)
 
 
-class Predlog(Base):
-    __tablename__ = 'predlogs'
-    Id = Column(Integer, primary_key=True)
-    Word = Column(String)
-    NounType = Column(String)
-    NounCase = Column(String)
+def create_new_user(session, username):
+    if not session.query(User).filter(User.username == username).first():
+        user = User(username=username)
+        session.add(user)
+        session.commit()
 
 
-class Beginning(Base):
-    __tablename__ = 'beginnings'
-    Id = Column(Integer, primary_key=True)
-    Word = Column(String)
-    CommaAfter = Column(Boolean)
-    Tense = Column(Integer)
-
-  
-class Ending(Base):
-    __tablename__ = 'endings'
-    Id = Column(Integer, primary_key=True)
-    Word = Column(String)
-    CommaAfter = Column(Boolean)
-    Tense = Column(Integer)
+def check_if_user_exists(session, username):
+    if not session.query(User).filter(User.username == username).first():
+        return False
+    return True

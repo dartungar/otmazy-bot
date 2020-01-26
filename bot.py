@@ -24,9 +24,18 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-keyboard = ReplyKeyboardMarkup([['/contexts', '/random', '/crazy', '/nonsense'], ['/start', '/help']], True)
+CHOOSING_OPTION_TYPE, GENDER, TENSE = range(3)
 
-context_keyboard = ReplyKeyboardMarkup([[ '/work', '/study', '/health'], ['/personal', '/family', '/leisure'], ['/random', '/crazy', '/back']], True)
+keyboard = ReplyKeyboardMarkup([['/contexts', '/random', '/crazy', '/nonsense'], ['/start', '/help', '/options']], True)
+
+context_keyboard = ReplyKeyboardMarkup([['/work', '/study', '/health'], ['/personal', '/family', '/leisure'], ['/back']], True)
+
+options_keyboard = ReplyKeyboardMarkup([['/my_gender'], ['/tense'], ['/back']], True)
+
+choose_my_gender_keyboard = ReplyKeyboardMarkup([['/male'], ['/female'], ['/back']], True)
+
+choose_tense_keyboard = ReplyKeyboardMarkup([['/past'], ['/future'], ['/past_and_future'], ['/back']], True)
+
 
 
 def error(update, context):
@@ -36,6 +45,9 @@ def error(update, context):
 
 def start(update, context):
     username = update.message.from_user.username
+
+    if not db.check_if_user_exists(session, username):
+        db.create_new_user(session, username)
 
     reply_text = f''' Otgovorki Bot v 0.2.7 alpha
     Привет, {username}!
@@ -58,11 +70,11 @@ def show_help(update, context):
 
 
 def go_to_contexts(update, context):
-    update.message.reply_text('Выберите контекст отговорки.', reply_markup=context_keyboard)
+    update.message.reply_text('Выберите контекст отговорки 👇', reply_markup=context_keyboard)
 
 
 def go_to_main_menu(update, context):
-    update.message.reply_text('🆗', reply_markup=keyboard)
+    update.message.reply_text('👌', reply_markup=keyboard)
 
 # def generate_with_context(update, context, cntxt):
 #     try:
@@ -234,6 +246,53 @@ def generate_leisure(update, context):
             break
 
 
+def options(update, context):
+    update.message.reply_text('Можете задать свой пол или указать, в каком времени (прошлом\будущем) отговорка', reply_markup=options_keyboard)
+    return CHOOSING_OPTION_TYPE 
+
+
+def choose_my_gender(update, context):
+    update.message.reply_text('Какой у вас пол? /male - мужской, /female - женский', reply_markup=choose_my_gender_keyboard)
+    return GENDER
+
+
+def set_my_gender_to_male(update, context):
+    username = update.message.from_user.username
+    user = session.query(User).filter(User.username == username).first()
+    user.gender = 'male'
+
+
+def set_my_gender_to_female(update, context):
+    username = update.message.from_user.username
+    user = session.query(User).filter(User.username == username).first()
+    user.gender = 'female'
+
+
+def choose_tense(update, context):
+    update.message.reply_text('О каком времени должно говориться в отговорках? /past - о прошлом, /future - о будущем', reply_markup=choose_tense_keyboard)
+    return TENSE
+
+
+def set_tense_to_past(update, context):
+    username = update.message.from_user.username
+    user = session.query(User).filter(User.username == username).first()
+    user.tense = 'past'
+
+
+def set_tense_to_future(update, context):
+    username = update.message.from_user.username
+    user = session.query(User).filter(User.username == username).first()
+    user.tense = 'futr'
+
+
+def clean_tense(update, context):
+    username = update.message.from_user.username
+    user = session.query(User).filter(User.username == username).first()
+    user.tense = ''
+
+
+
+
 def main():
 
     updater = Updater(BOT_TOKEN, use_context=True)
@@ -290,6 +349,25 @@ def main():
     generate_leisure_handler = CommandHandler('leisure', generate_leisure)
     dp.add_handler(generate_leisure_handler)
 
+    options_handler = ConversationHandler(
+        entry_points=[CommandHandler('options', options)],
+
+        states={
+            CHOOSING_OPTION_TYPE: [CommandHandler('my_gender', choose_my_gender),
+                                    CommandHandler('tense', choose_tense),
+                                    CommandHandler('back', go_to_main_menu)],
+            GENDER: [CommandHandler('male', set_my_gender_to_male),
+                        CommandHandler('female', set_my_gender_to_female),
+                        CommandHandler('cancel', options)],
+            TENSE: [CommandHandler('past', set_tense_to_past),
+                    CommandHandler('future', set_tense_to_future),
+                    CommandHandler('past_and_future', clean_tense),
+                    CommandHandler('cancel', options)]
+        },
+
+        fallbacks=[CommandHandler('back', go_to_main_menu)]
+    )
+    dp.add_handler(options_handler)
 
     
 

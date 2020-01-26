@@ -5,7 +5,7 @@ from helpers import declensify, declensify_text, get_context_column_name, needs_
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, datv=False, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, datv=False, context=None,subj_sex=None, min_seriousness=None, max_seriousness=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
@@ -52,10 +52,13 @@ class Subject():
         for plur in ['sing', 'plur']:
             if plur in self.parsed.tag:
                 self.plural = plur
+        
         self.gender = 'masc'
         for gender in ['masc', 'femn', 'neut']:
             if gender in self.parsed.tag:
                 self.gender = gender
+        if self.word == 'я' and subj_sex:
+            self.gender = subj_sex
 
         
  
@@ -252,11 +255,14 @@ class Greeting():
 
 # разные предложения, добавляемые до или после основного, ради правдоподобности
 class EndingSentence():
-    def __init__(self, words, morph, tense='pres', type='ending', custom_word_parsed=None, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, tense='pres', type='ending', custom_word_parsed=None, context=None, subj_sex=None, min_seriousness=None, max_seriousness=None):
         sentences = words['sentences'].fillna(value=0)
 
         if context:
             sentences = sentences[sentences[get_context_column_name(context)]==True]
+
+        if subj_sex:
+            sentences = sentences[((sentences.subj_sex==subj_sex)|(sentences.subj_sex=='all'))]
 
         if min_seriousness:
             sentences = sentences[sentences.seriousness>=min_seriousness]
