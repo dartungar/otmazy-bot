@@ -5,27 +5,29 @@ from helpers import declensify, declensify_text, get_context_column_name, needs_
 
 # существительное
 class Subject():
-    def __init__(self, words, morph, datv=False, context=None,subj_sex=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, datv=False, context=None, subject_is_myself=True, subj_sex=None, min_seriousness=None, max_seriousness=None):
         # TODO: другие существительные (тёща, жена, итд) из таблицы + зависимость от времени (в дательном падеже прошлое время - нельзя?..)
         # + зависимость от контекста
         # TODO: если субъект не ты, то добавлять что-то типа "надо помочь", "не могу отказаться", "придется помочь" и т.д.
         # возможно это уже совсем другой шаблон
 
-        subjects = words['noun'].fillna(value=0)
-        subjects = subjects[subjects.type=='person']
-        
+        if subject_is_myself:
+            self.word = 'я'
+        else:
+            subjects = words['noun'].fillna(value=0)
+            subjects = subjects[subjects.type=='person']
+            
+            if context:
+                subjects = subjects[subjects[get_context_column_name(context)]==True]
 
-        if context:
-            subjects = subjects[subjects[get_context_column_name(context)]==True]
+            if min_seriousness:
+                subjects = subjects[subjects.seriousness>=min_seriousness]
+            if max_seriousness:
+                subjects = subjects[subjects.seriousness<=max_seriousness]
+            
+            self.info = subjects.sample()
+            self.word = self.info.iloc[0, 0]
 
-        if min_seriousness:
-            subjects = subjects[subjects.seriousness>=min_seriousness]
-        if max_seriousness:
-            subjects = subjects[subjects.seriousness<=max_seriousness]
-
-        
-        self.info = subjects.sample()
-        self.word = self.info.iloc[0, 0]
         self.is_myself = 1 if self.word == 'я' else 0
         self.parsed = parse(self.word, parse_exceptions, morph=morph) #morph.parse(self.word)[0]
         self.num_of_words = len(self.word.split(' '))
@@ -58,7 +60,11 @@ class Subject():
             if gender in self.parsed.tag:
                 self.gender = gender
         if self.word == 'я' and subj_sex:
-            self.gender = subj_sex
+            if subj_sex == 'female':
+                self.gender = 'femn'
+            else:
+                self.gender = subj_sex
+
 
         
  
@@ -213,11 +219,14 @@ class Noun():
      
 
 class BeginningSpice():
-    def __init__(self, words, morph, tense='pres', has_greeting=False, context=None, min_seriousness=None, max_seriousness=None):
+    def __init__(self, words, morph, tense='pres', has_greeting=False, context=None, subj_sex=None, min_seriousness=None, max_seriousness=None):
         beginnings = words['beginning'].fillna(value=0)
 
         if context:
             beginnings = beginnings[beginnings[get_context_column_name(context)]==True]
+
+        if subj_sex:
+            beginnings = beginnings[((beginnings.subj_sex==subj_sex)|(beginnings.subj_sex=='all'))]
 
         if min_seriousness:
             beginnings = beginnings[beginnings.seriousness>=min_seriousness]

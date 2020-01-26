@@ -149,4 +149,12 @@ def make_rules_nonsense(rules):
     return rules
 
 
+def with_user_data(f):
+    def wrapper(*args, **kwargs):
+        username = update.message.from_user.username
+        user = session.query(User).filter(User.username == username).first()
+        user_gender = user.gender
+        user_tense = user.tense
+        return f(*args, **kwargs)
+    return wrapper
 

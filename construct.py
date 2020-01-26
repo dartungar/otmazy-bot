@@ -24,7 +24,7 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
     unexplained_person = None
 
     # subject
-    subject = Subject(words=words, morph=morph, datv=subj_datv, context=context, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
+    subject = Subject(words=words, morph=morph, datv=subj_datv, context=context, subject_is_myself=subject_is_myself, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness)
 
     if 'Name' in subject.parsed.tag:
         unexplained_person = subject
@@ -122,7 +122,7 @@ def constructor(words, morph, tense='futr', context=None, is_nonsense=False,
 
     # beginning spice "Тут такое дело..."
     if has_beginning:
-        beginning = BeginningSpice(words=words, morph=morph, context=context, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
+        beginning = BeginningSpice(words=words, morph=morph, context=context, subj_sex=subj_sex, min_seriousness=min_seriousness, max_seriousness=max_seriousness).word
         #beginning = declensify_text(morph, beginning, subject, tense, context)
         if beginning.endswith('.'):
             word_list[0] = word_list[0].capitalize()

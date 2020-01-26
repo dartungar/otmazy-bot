@@ -5,7 +5,7 @@ from sqlalchemy.sql import *
 import os
 
 Base = declarative_base()
-engine = create_engine(os.environ[' '])
+engine = create_engine(os.environ['DATABASE_URL_OTGOVORKI']) 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 

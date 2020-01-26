@@ -7,7 +7,7 @@ from helpers import create_text_from_list, needs_capitalizing
 #from words import get_podlezh, get_skaz, get_noun_dop, get_noun_obst, get_predlog, get_must
 
 
-def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_seriousness=None, context=None, subj_sex=None, tense=None):
+def test_constructor(words, morph, is_nonsense=False, subject_is_myself=True, min_seriousness=None, max_seriousness=None, context=None, subj_sex=None, tense=None):
     if not tense:
         tense = random.choice(['past', 'futr'])     
 
@@ -15,6 +15,7 @@ def test_constructor(words, morph, is_nonsense=False, min_seriousness=None, max_
                         morph=morph, 
                         tense=tense, 
                         is_nonsense=is_nonsense,
+                        subject_is_myself=random.randint(0, 1),
                         subj_datv=random.randint(0, 1),
                         has_predicate_spice=random.randint(0, 1),
                         to_be=random.randint(0, 1),
@@ -40,5 +41,5 @@ if __name__ == '__main__':
 
     for i in range(10):
         excuse_context = random.choice(['family', 'personal', 'health', 'leisure', 'work', 'study', 'official'])
-        text = test_constructor(words=df, morph=morph, context=excuse_context)
+        text = test_constructor(words=df, morph=morph, subj_sex='female', tense='futr', context=excuse_context)
         print(f'{excuse_context}: {text}')
