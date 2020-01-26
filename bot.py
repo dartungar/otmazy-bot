@@ -20,6 +20,8 @@ MAX_RETRY = 10
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN_OTMAZY')
 
+BOT_VERSION = '0.3.1 alpha'
+
 df = pd.read_excel('otgovorki.xlsx', index_col=0, sheet_name=None)
 logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
@@ -27,7 +29,7 @@ logger.info('initialized Morph')
 
 CHOOSING_OPTION_TYPE, GENDER, TENSE = range(3)
 
-keyboard = ReplyKeyboardMarkup([['/contexts', '/random', '/crazy', '/nonsense'], ['/start', '/help', '/options']], True)
+keyboard = ReplyKeyboardMarkup([['/contexts', '/random'], ['/crazy', '/nonsense'], ['/help', '/options']], True)
 
 context_keyboard = ReplyKeyboardMarkup([['/work', '/study', '/health'], ['/personal', '/family', '/leisure'], ['/back']], True)
 
@@ -67,9 +69,9 @@ def start(update, context):
 
     update_user_data(update, context, session)
 
-    reply_text = f''' Otgovorki Bot v 0.3.0 alpha
+    reply_text = f''' Otgovorki Bot {BOT_VERSION}.
     Привет, {username}!
-    Я - альфа-версия бота для генерации отговорок отговорок и отмазок.
+    Я - бот для генерации отговорок отговорок и отмазок.
     Иногда ошибаюсь - зато смешно ;)
     Справка по моим командам: /help .
     '''
@@ -79,7 +81,8 @@ def start(update, context):
 
 def show_help(update, context):
     reply_text = f''' 
-    /help - помощь по командам
+    Otgovorki Bot {BOT_VERSION}.
+    Генерирую отговорки потехи ради.
     /options - настройки отговорок
     /contexts - отговорки по контекстам (работа, учеба, личные дела) alpha
     /random - отговорка в случайном контексте
@@ -268,7 +271,7 @@ def generate_leisure(update, context):
 def options(update, context):
     username = update.message.from_user.username
     user = session.query(User).filter(User.username == username).first()
-    update.message.reply_text(f'Установлен пол: {user.gender}, время - {user.tense}. Можете задать свой пол или указать, в каком времени (прошлом, будущем) отговорка', reply_markup=options_keyboard)
+    update.message.reply_text(f'Установлен пол: {user.gender}, время - {user.tense if user.tense else "прошлое и будущее"}. Можете задать свой пол или указать, в каком времени (прошлом, будущем) отговорка', reply_markup=options_keyboard)
     return CHOOSING_OPTION_TYPE 
 
 
