@@ -91,6 +91,7 @@ def show_help(update, context):
 
 
 def go_to_contexts(update, context):
+    update_user_data(update, context, session)
     update.message.reply_text('Выберите контекст отговорки 👇', reply_markup=context_keyboard)
 
 
@@ -104,6 +105,9 @@ def exit_options(update, context):
 
 
 def generate_random(update, context):
+    if not context.user_data['gender']:
+        update_user_data(update, context, session)
+
     excuse_context = random.choice(['family', 'personal', 'health', 'leisure', 'work', 'study', 'official'])
     for i in range(MAX_RETRY):
         try:
@@ -278,6 +282,7 @@ def set_my_gender_to_male(update, context):
     user = session.query(User).filter(User.username == username).first()
     user.gender = 'male'
     session.commit()
+    update_user_data(update, context, session)
     update.message.reply_text('Установлен мужской пол!', reply_markup=keyboard)
     return ConversationHandler.END
 
@@ -287,6 +292,7 @@ def set_my_gender_to_female(update, context):
     user = session.query(User).filter(User.username == username).first()
     user.gender = 'female'
     session.commit()
+    update_user_data(update, context, session)
     update.message.reply_text('Установлен женский пол!', reply_markup=keyboard)
     return ConversationHandler.END
 
@@ -301,6 +307,7 @@ def set_tense_to_past(update, context):
     user = session.query(User).filter(User.username == username).first()
     user.tense = 'past'
     session.commit()
+    update_user_data(update, context, session)
     update.message.reply_text('Установлено прошедшее время!', reply_markup=keyboard)
     return ConversationHandler.END
 
@@ -310,6 +317,7 @@ def set_tense_to_future(update, context):
     user = session.query(User).filter(User.username == username).first()
     user.tense = 'futr'
     session.commit()
+    update_user_data(update, context, session)
     update.message.reply_text('Установлено будущее время!', reply_markup=keyboard)
     return ConversationHandler.END
 
@@ -319,6 +327,7 @@ def clean_tense(update, context):
     user = session.query(User).filter(User.username == username).first()
     user.tense = ''
     session.commit()
+    update_user_data(update, context, session)
     update.message.reply_text('Установлены прошедшее и будущее времена!', reply_markup=keyboard)
     return ConversationHandler.END
 

@@ -25,7 +25,7 @@ def test_constructor(words, morph, is_nonsense=False, subject_is_myself=True, mi
                         min_seriousness=min_seriousness,
                         max_seriousness=max_seriousness,
                         context=context,
-                        subj_sex = subj_sex
+                        subj_sex=subj_sex
                         )
 
 
