@@ -27,9 +27,9 @@ logger.info('loaded data from excel')
 morph = pymorphy2.MorphAnalyzer()
 logger.info('initialized Morph')
 
-CHOOSING_OPTION_TYPE, GENDER, TENSE = range(3)
+CHOOSING_OPTION_TYPE, GENDER, TENSE, IN_CONTEXTS, IN_FUN = range(5)
 
-keyboard = ReplyKeyboardMarkup([['/contexts', '/random'], ['/crazy', '/nonsense'], ['/help', '/options']], True)
+keyboard = ReplyKeyboardMarkup([['/generate'], ['/themes', '/fun'], ['/help', '/options']], True)
 
 context_keyboard = ReplyKeyboardMarkup([['/work', '/study', '/health'], ['/personal', '/family', '/leisure'], ['/back']], True)
 
@@ -65,7 +65,7 @@ def start(update, context):
     username = update.message.from_user.username
 
     if not db.check_if_user_exists(session, username):
-        db.create_new_user(session, username)
+        db.create_new_user(session, username) 
 
     update_user_data(update, context, session)
 
@@ -96,10 +96,12 @@ def show_help(update, context):
 def go_to_contexts(update, context):
     update_user_data(update, context, session)
     update.message.reply_text('Выберите контекст отговорки 👇', reply_markup=context_keyboard)
+    return IN_CONTEXTS
 
 
 def go_to_main_menu(update, context):
     update.message.reply_text('👌', reply_markup=keyboard)
+    return ConversationHandler.END
 
 
 def exit_options(update, context):
@@ -124,6 +126,11 @@ def generate_random(update, context):
             break
 
 
+def go_to_fun(update, contexts):
+    update.message.reply_text('/crazy - странная отговорка, /nonsense - полный бред!', reply_markup=keyboard)
+    return IN_FUN
+
+
 def generate_crazy(update, context):
     for i in range(MAX_RETRY):
         try:
@@ -135,7 +142,7 @@ def generate_crazy(update, context):
             continue
         else:
             break
-
+    return IN_FUN
 
 
 def generate_nonsense(update, context):
@@ -149,6 +156,7 @@ def generate_nonsense(update, context):
             continue
         else:
             break
+    return IN_FUN
 
 
 def generate_serious(update, context):
@@ -188,6 +196,7 @@ def generate_personal(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_work(update, context):
@@ -201,6 +210,7 @@ def generate_work(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_family(update, context):
@@ -214,6 +224,7 @@ def generate_family(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_study(update, context):
@@ -227,6 +238,7 @@ def generate_study(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_official(update, context):
@@ -240,6 +252,7 @@ def generate_official(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_health(update, context):
@@ -253,6 +266,7 @@ def generate_health(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def generate_leisure(update, context):
@@ -266,6 +280,7 @@ def generate_leisure(update, context):
             continue
         else:
             break
+    return IN_CONTEXTS
 
 
 def options(update, context):
@@ -351,20 +366,8 @@ def main():
     help_handler = CommandHandler('help', show_help)
     dp.add_handler(help_handler)
 
-    go_to_contexts_handler = CommandHandler('contexts', go_to_contexts)
-    dp.add_handler(go_to_contexts_handler)
-
-    go_to_main_menu_handler = CommandHandler('back', go_to_main_menu)
-    dp.add_handler(go_to_main_menu_handler)
-
-    generate_random_handler = CommandHandler('random', generate_random)
+    generate_random_handler = CommandHandler('generate', generate_random)
     dp.add_handler(generate_random_handler)
-
-    generate_crazy_handler = CommandHandler('crazy', generate_crazy)
-    dp.add_handler(generate_crazy_handler)
-
-    generate_nonsense_handler = CommandHandler('nonsense', generate_nonsense)
-    dp.add_handler(generate_nonsense_handler)
 
     generate_serious_handler = CommandHandler('serious', generate_serious)
     dp.add_handler(generate_serious_handler)
@@ -372,26 +375,6 @@ def main():
     generate_not_serious_handler = CommandHandler('not_serious', generate_not_serious)
     dp.add_handler(generate_not_serious_handler)
 
-    generate_personal_handler = CommandHandler('personal', generate_personal)
-    dp.add_handler(generate_personal_handler)
-
-    generate_family_handler = CommandHandler('family', generate_family)
-    dp.add_handler(generate_family_handler)
-
-    generate_work_handler = CommandHandler('work', generate_work)
-    dp.add_handler(generate_work_handler)
-
-    generate_study_handler = CommandHandler('study', generate_study)
-    dp.add_handler(generate_study_handler)
-
-    generate_official_handler = CommandHandler('official', generate_official)
-    dp.add_handler(generate_official_handler)
-
-    generate_health_handler = CommandHandler('health', generate_health)
-    dp.add_handler(generate_health_handler)
-    
-    generate_leisure_handler = CommandHandler('leisure', generate_leisure)
-    dp.add_handler(generate_leisure_handler)
 
     options_handler = ConversationHandler(
         entry_points=[CommandHandler('options', options)],
@@ -414,7 +397,37 @@ def main():
     )
     dp.add_handler(options_handler)
 
-    
+
+    fun_handler = ConversationHandler(
+        entry_points=[CommandHandler('/fun', go_to_fun)],
+
+        states={
+            IN_FUN: [CommandHandler('/crazy', generate_crazy),
+                                    CommandHandler('/nonsense', generate_nonsense)],
+        },
+
+        fallbacks=[CommandHandler('/back', go_to_main_menu)]
+    )
+    dp.add_handler(fun_handler)
+
+
+    contexts_handler = ConversationHandler(
+        entry_points=[CommandHandler('/themes', go_to_contexts)],
+
+        states={
+            IN_CONTEXTS: [
+                            CommandHandler('/work', generate_work),
+                            CommandHandler('/study', generate_study)],
+                            CommandHandler('/health', generate_health)],
+                            CommandHandler('/personal', generate_personal)],
+                            CommandHandler('/family', generate_family)],
+                            CommandHandler('/leisure', generate_leisure)],
+        },
+
+        fallbacks=[CommandHandler('/back', go_to_main_menu)]
+    )
+    dp.add_handler(contexts_handler)
+
 
     updater.start_polling()
     updater.idle()
